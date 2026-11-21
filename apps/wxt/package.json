@@ -1,0 +1,38 @@
+{
+	"name": "@repo/wxt",
+	"version": "0.0.0",
+	"private": true,
+	"description": "Pleiades Spectra",
+	"type": "module",
+	"scripts": {
+		"dev": "wxt",
+		"dev:firefox": "wxt -b firefox",
+		"build": "wxt build",
+		"build:firefox": "wxt build -b firefox",
+		"zip": "wxt zip",
+		"zip:firefox": "wxt zip -b firefox",
+		"postinstall": "wxt prepare",
+		"check-types": "bun check",
+		"lint": "biome check ."
+	},
+	"devDependencies": {
+		"@kitajs/ts-html-plugin": "^4.1.4",
+		"@repo/typescript-config": "workspace:*",
+		"@types/alpinejs": "^3.17.0",
+		"typescript": "catalog:",
+		"vite": "^8.1.5",
+		"web-ext": "^10.5.0",
+		"wxt": "^0.21.3"
+	},
+	"dependencies": {
+		"@alpinejs/csp": "^3.17.5",
+		"@kitajs/html": "^4.2.13",
+		"@repo/protocol": "workspace:*",
+		"@repo/reactions": "workspace:*",
+		"@repo/ui": "workspace:*",
+		"@shikijs/langs": "^4.6.0",
+		"@shikijs/themes": "^4.6.0",
+		"shiki": "^4.6.0",
+		"zod": "^4.6.7"
+	}
+}

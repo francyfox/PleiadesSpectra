@@ -1,0 +1,40 @@
+/* The poses of Beta, and the number of a measurement; the same rules serve the widget, the popup and the test bench. */
+.beta__base,
+.beta__overlay {
+	transition: opacity 0.15s ease;
+}
+
+/* The mirror stands in the middle of the picture. It is set here, because Alpine replaces the whole style attribute. */
+.beta__pose {
+	transform-box: fill-box;
+	transform-origin: center;
+}
+
+.beta__pose {
+	opacity: 0;
+	transition:
+		opacity 0.15s ease,
+		transform 0.2s ease;
+}
+
+.beta__vital-number {
+	font:
+		800 140px / 1 system-ui,
+		sans-serif;
+	fill: #8f2f36;
+	stroke: #fff;
+	stroke-width: 8px;
+	paint-order: stroke;
+	stroke-linejoin: round;
+}
+
+.beta__vital-unit {
+	font:
+		700 90px / 1 system-ui,
+		sans-serif;
+	fill: #8f2f36;
+	stroke: #fff;
+	stroke-width: 6px;
+	paint-order: stroke;
+	stroke-linejoin: round;
+}

@@ -4,8 +4,8 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "cd ../../packages/reactions && bun run build && cd ../../apps/wxt && bun run build",
-		"test": "bun run build && playwright test",
+		"build:extension": "cd ../../packages/reactions && bun run build && cd ../../apps/wxt && bun run build",
+		"test": "bun run build:extension && playwright test",
 		"check-types": "bun check"
 	},
 	"devDependencies": {

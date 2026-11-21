@@ -1,0 +1,24 @@
+.beta-label {
+	box-sizing: border-box;
+	width: var(--beta-label-width, auto);
+	font: 600 var(--beta-label-font, 14px) / 1 var(--ui-font);
+	color: var(--ui-fg);
+	background: var(--ui-bg);
+	border: 1px solid var(--ui-border);
+	border-radius: 999px;
+	padding: 0.3em 0.6em;
+	text-transform: uppercase;
+	text-align: center;
+}
+
+.beta-label--small {
+	--beta-label-font: 12px;
+}
+
+.beta-label--medium {
+	--beta-label-font: 14px;
+}
+
+.beta-label--large {
+	--beta-label-font: 18px;
+}

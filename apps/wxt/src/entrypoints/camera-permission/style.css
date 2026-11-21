@@ -1,0 +1,34 @@
+body {
+	margin: 0;
+	font-family: var(--ui-font);
+	color: var(--ui-fg);
+	background: var(--ui-bg);
+}
+
+.permission {
+	display: grid;
+	place-items: center;
+	min-height: 100vh;
+	padding: 16px;
+}
+
+.permission__card {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	max-width: 420px;
+}
+
+.permission__card h1 {
+	margin: 0;
+	font-size: 20px;
+}
+
+.permission__card p {
+	margin: 0;
+	line-height: 1.5;
+}
+
+.permission__status {
+	color: var(--ui-muted);
+}

@@ -1,0 +1,41 @@
+body {
+	margin: 0;
+	font-family: var(--ui-font);
+	color: var(--ui-fg);
+	background: var(--ui-bg);
+}
+
+.bench {
+	max-width: 640px;
+	margin: 0 auto;
+	padding: 24px 16px 160px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.bench__hint {
+	margin: 0;
+	color: var(--ui-muted);
+	font-size: 14px;
+}
+
+.bench__card h2 {
+	margin: 0 0 10px;
+	font-size: 15px;
+}
+
+.bench__row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.bench__log {
+	margin: 0;
+	padding-left: 18px;
+	font:
+		13px / 1.6 ui-monospace,
+		monospace;
+	min-height: 1.6em;
+}

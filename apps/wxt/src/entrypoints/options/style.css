@@ -1,0 +1,411 @@
+/* `!important` is needed: the components set their own `display`, and a hidden element must stay hidden. */
+[x-cloak] {
+	/* biome-ignore lint/complexity/noImportantStyles: see above */
+	display: none !important;
+}
+
+body {
+	margin: 0;
+	font-family: var(--ui-font);
+	color: var(--ui-fg);
+	background: var(--ui-bg);
+}
+
+.plugins {
+	max-width: 720px;
+	margin: 0 auto;
+	padding: 24px 16px 64px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.plugins h1,
+.plugins h2 {
+	margin: 0;
+}
+
+.plugins__drop {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	border-style: dashed;
+}
+
+.plugins__drop[data-dragging="true"] {
+	border-color: var(--ui-accent);
+}
+
+.plugins__list {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.plugins__muted {
+	color: var(--ui-muted);
+	font-size: 14px;
+}
+
+.plugins__error {
+	margin: 0;
+	color: var(--ui-danger);
+}
+
+.plugins__physio {
+	margin: 0;
+	padding: 6px 10px;
+	border-left: 3px solid var(--ui-danger);
+	font-size: 13px;
+}
+
+.plugin {
+	display: flex;
+	flex-direction: row;
+	gap: 12px;
+}
+
+.plugin__side {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.plugin__main {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	flex: 1;
+	min-width: 0;
+}
+
+.plugin__head {
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.plugin__title {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.plugin__author {
+	font-size: 13px;
+	color: var(--ui-muted);
+}
+
+.plugin__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+/* One line: what does not fit is hidden by `x-chip-line`, which adds a `+N` chip for them. */
+.plugin__chips {
+	display: flex;
+	flex-wrap: nowrap;
+	flex-shrink: 0;
+	gap: 8px;
+	overflow: hidden;
+}
+
+.plugin__chips > .ui-chip {
+	flex-shrink: 0;
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.plugin__chips > .ui-chip[hidden] {
+	display: none;
+}
+
+/* Pages shared with another enabled plugin: a calm accent bar, not an alarm. */
+.plugin[data-overlap="true"] {
+	border-left: 4px solid var(--ui-accent);
+	background: color-mix(in srgb, var(--ui-accent) 6%, var(--ui-bg));
+}
+
+.plugin__overlap {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.plugin__overlap p {
+	margin: 0;
+	font-size: 13px;
+}
+
+.plugin__shares {
+	color: var(--ui-muted);
+}
+
+.plugin__clash {
+	padding-left: 8px;
+	border-left: 3px solid var(--ui-accent);
+}
+
+.plugins__details {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	overflow: auto;
+}
+
+.plugins__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.help__body {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	overflow: auto;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.help__body h3,
+.help__body p,
+.help__body ul,
+.help__body ol {
+	margin: 0;
+}
+
+.help__body h3 {
+	margin-top: 6px;
+	font-size: 15px;
+}
+
+.help__body ul,
+.help__body ol {
+	padding-left: 20px;
+}
+
+.help__code pre {
+	margin: 0;
+	padding: 10px;
+	overflow: auto;
+	font:
+		12px / 1.5 ui-monospace,
+		monospace;
+	border: 1px solid var(--ui-border);
+	border-radius: 8px;
+}
+
+.shiki span {
+	color: var(--shiki-light);
+}
+
+@media (prefers-color-scheme: dark) {
+	.shiki span {
+		color: var(--shiki-dark);
+	}
+}
+
+.help__command {
+	flex: 1;
+	min-width: 0;
+	max-width: 100%;
+	margin: 0;
+	padding: 10px;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	overflow-y: auto;
+	overflow-x: hidden;
+	font:
+		12px / 1.5 ui-monospace,
+		monospace;
+	border: 1px solid var(--ui-border);
+	border-radius: 8px;
+}
+
+.plugins__proposal {
+	align-self: flex-start;
+}
+
+.agent__details {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 10px;
+	width: 100%;
+	max-width: 100%;
+	min-width: 0;
+}
+
+.agent__details > button {
+	align-self: flex-start;
+}
+
+.agent__status {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.agent__button,
+.agent__title {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.ai-logos {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	opacity: 0.8;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+.help__body,
+.agent__details > * {
+	min-width: 0;
+	max-width: 100%;
+}
+
+.copy-field {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	max-width: 100%;
+}
+
+.copy-field--top {
+	align-items: flex-start;
+}
+
+.help {
+	width: min(720px, 100%);
+}
+
+.help__panel {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	min-width: 0;
+}
+
+.help__panel > button {
+	align-self: flex-start;
+}
+
+.help__table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+
+.help__table th,
+.help__table td {
+	text-align: left;
+	vertical-align: top;
+	padding: 6px 8px;
+	border-bottom: 1px solid var(--ui-border);
+}
+
+.help__table th {
+	width: 36%;
+	font-weight: 500;
+	overflow-wrap: anywhere;
+}
+
+.help__note {
+	padding: 10px 12px;
+	font-size: 12px;
+	line-height: 1.5;
+	color: var(--ui-muted);
+	border: 1px solid var(--ui-border);
+	border-radius: 8px;
+}
+
+.help__prompt {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 10px;
+	border: 1px solid var(--ui-border);
+	border-radius: 8px;
+}
+
+.help__prompt p {
+	margin: 0;
+	font-size: 13px;
+}
+
+.help__prompt-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.help__prompt-copy-done,
+.help__prompt-copy[data-copied] .help__prompt-copy-idle {
+	display: none;
+}
+
+.help__prompt-copy[data-copied] .help__prompt-copy-done {
+	display: inline;
+}
+
+.code-dialog {
+	width: min(760px, 100%);
+}
+
+.code-dialog__body {
+	min-height: 0;
+	overflow: auto;
+}
+
+.code-dialog__body pre {
+	margin: 0;
+	padding: 12px;
+	overflow: auto;
+	font:
+		12px / 1.5 ui-monospace,
+		monospace;
+	border: 1px solid var(--ui-border);
+	border-radius: 8px;
+}
+
+.plugin__code {
+	margin: 0;
+	max-height: 280px;
+	padding: 10px;
+	overflow: auto;
+	font:
+		12px / 1.5 ui-monospace,
+		monospace;
+	border: 1px solid var(--ui-border);
+	border-radius: 8px;
+}
+
+.help__figure {
+	margin: 0;
+}
+
+.help__figure img {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	height: auto;
+	border-radius: 8px;
+}

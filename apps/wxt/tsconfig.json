@@ -1,0 +1,9 @@
+{
+	"extends": ["@repo/typescript-config/base.json", "./.wxt/tsconfig.json"],
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"jsxImportSource": "@kitajs/html",
+		"plugins": [{ "name": "@kitajs/ts-html-plugin" }]
+	},
+	"exclude": ["src/**/*.test.ts"]
+}

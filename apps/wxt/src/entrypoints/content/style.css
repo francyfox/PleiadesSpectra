@@ -1,0 +1,193 @@
+@import "../../components/beta-label.css";
+@import "../../components/beta-face.css";
+
+/* `!important` is needed: the components set their own `display`, and a hidden element must stay hidden. */
+[x-cloak] {
+	/* biome-ignore lint/complexity/noImportantStyles: see above */
+	display: none !important;
+}
+
+.widget {
+	font-family: var(--ui-font);
+	color: var(--ui-fg);
+}
+
+.beta {
+	--beta-width: 180px;
+	--beta-label-font: calc(var(--beta-width) * 0.1);
+	--beta-label-width: calc(var(--beta-width) * 0.67);
+	position: fixed;
+	z-index: 2147483647;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+}
+
+.beta__face {
+	display: block;
+	width: var(--beta-width);
+	height: auto;
+}
+
+.beta--flipped .beta__face {
+	transform: scaleX(-1);
+}
+
+.beta--small {
+	--beta-width: 120px;
+}
+
+.beta--medium {
+	--beta-width: 180px;
+}
+
+.beta--large {
+	--beta-width: 260px;
+}
+
+.beta--top-left {
+	top: 16px;
+	left: 16px;
+}
+
+.beta--top {
+	top: 16px;
+	left: 50%;
+	translate: -50% 0;
+}
+
+.beta--top-right {
+	top: 16px;
+	right: 16px;
+}
+
+.beta--left {
+	top: 50%;
+	left: 16px;
+	translate: 0 -50%;
+}
+
+.beta--center {
+	top: 50%;
+	left: 50%;
+	translate: -50% -50%;
+}
+
+.beta--right {
+	top: 50%;
+	right: 16px;
+	translate: 0 -50%;
+}
+
+.beta--bottom-left {
+	bottom: 16px;
+	left: 16px;
+}
+
+.beta--bottom {
+	bottom: 16px;
+	left: 50%;
+	translate: -50% 0;
+}
+
+.beta--bottom-right {
+	right: 16px;
+	bottom: 16px;
+}
+
+.beta__mouth,
+.beta__brow {
+	transition:
+		d 150ms ease,
+		fill 150ms ease;
+}
+
+.beta__tint,
+.beta__dimple {
+	transition:
+		opacity 300ms ease,
+		fill 300ms ease;
+}
+
+.camera-badge {
+	display: flex;
+	cursor: default;
+	align-items: center;
+	gap: 6px;
+	font: 500 12px / 1 var(--ui-font);
+	color: var(--ui-fg);
+	background: var(--ui-bg);
+	border: 1px solid var(--ui-border);
+	border-radius: 999px;
+	padding: 5px 10px;
+}
+
+.camera-badge--pausable {
+	cursor: pointer;
+}
+
+.hint {
+	position: fixed;
+	left: 16px;
+	bottom: 16px;
+	z-index: 2147483647;
+	width: 320px;
+	max-width: calc(100vw - 32px);
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.hint__plugin {
+	font-size: 12px;
+	color: var(--ui-muted);
+}
+
+.hint__question {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.hint__row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+
+.hint__countdown {
+	margin-left: auto;
+	font-size: 13px;
+	color: var(--ui-muted);
+}
+
+.hint__status {
+	margin: 0;
+	font-size: 13px;
+	color: var(--ui-muted);
+}
+
+.toast {
+	position: fixed;
+	top: 16px;
+	right: 16px;
+	z-index: 2147483647;
+	max-width: min(320px, calc(100vw - 32px));
+}
+
+.widget--left .hint {
+	left: auto;
+	right: 16px;
+}
+
+.widget--top .hint {
+	top: 16px;
+	bottom: auto;
+}
+
+.widget--top .toast {
+	top: auto;
+	bottom: 16px;
+}
