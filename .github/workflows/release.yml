@@ -146,6 +146,15 @@ jobs:
           FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
           FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
         run: |
+          missing=""
+          for name in CHROME_EXTENSION_ID CHROME_CLIENT_ID CHROME_CLIENT_SECRET CHROME_REFRESH_TOKEN \
+            FIREFOX_EXTENSION_ID FIREFOX_JWT_ISSUER FIREFOX_JWT_SECRET; do
+            if [ -z "${!name}" ]; then missing="$missing $name"; fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::warning title=Store publishing skipped::These secrets of the production environment are empty:$missing"
+            exit 0
+          fi
           bunx wxt submit \
             --chrome-zip "$GITHUB_WORKSPACE/release/spectra-$VERSION-chrome.zip" \
             --firefox-zip "$GITHUB_WORKSPACE/release/spectra-$VERSION-firefox.zip" \

@@ -40,6 +40,9 @@ Firefox AMO:
   add-on on AMO.
 - `FIREFOX_JWT_ISSUER`, `FIREFOX_JWT_SECRET` — addons.mozilla.org → Developer Hub → Manage API Keys.
 
+While any of these secrets is empty, the `publish` job skips `wxt submit` with a warning instead of failing, so a tag
+still gives a GitHub Release with the zips. Fill all seven to publish to the stores.
+
 `bunx wxt submit init` in `apps/wxt` creates a local `.env.submit`; do not commit it, move the values into the secrets.
 
 ## Manual approval
