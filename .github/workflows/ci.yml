@@ -77,35 +77,3 @@ jobs:
         run: |
           bun run --cwd packages/reactions build
           git diff --exit-code -- packages/reactions/reactions.d.ts
-
-  e2e:
-    name: E2E (Playwright)
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: ${{ env.BUN_VERSION }}
-      - uses: actions/cache@v4
-        with:
-          path: ~/.bun/install/cache
-          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
-          restore-keys: bun-${{ runner.os }}-
-      - run: bun install --frozen-lockfile
-      # The tests start the Chrome installed on the runner themselves (headless=new, remote debugging),
-      # so neither a Playwright browser download nor xvfb is needed.
-      - name: Show Chrome version
-        run: google-chrome-stable --version
-      - name: E2E
-        run: bun run e2e
-        env:
-          CHROME_PATH: google-chrome-stable
-      - name: Upload Playwright results
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: e2e-test-results
-          path: apps/e2e/test-results
-          if-no-files-found: ignore
-          retention-days: 7

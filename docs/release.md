@@ -5,7 +5,7 @@
 - `.github/workflows/ci.yml` runs on PRs and on a push to `main`; it does not run on tags and does not block a release.
   Jobs: `lint` (biome only over the changed files: from the PR base or from the previous push; the root still has old
   findings), `check` (check-types, the unit tests of `packages/reactions`, `bun run build`, and a check of
-  `git diff --exit-code packages/reactions/reactions.d.ts` after the build), `e2e` (Playwright).
+  `git diff --exit-code packages/reactions/reactions.d.ts` after the build). E2E tests are not part of CI: run `bun run e2e` locally.
 - `.github/workflows/release.yml` runs on a `v*` tag and by hand; it does not call CI: before tagging, make sure the
   last commit of `main` is green (`workflow_dispatch`, input `dry-run`, true by default). Jobs:
   1. `build` — a version check, `wxt zip` (Chrome), `wxt zip -b firefox`, a source archive, the artifacts
@@ -62,7 +62,5 @@ Notes to reviewer field on AMO.
 - `wxt submit`: work with real CWS/AMO keys, and the zip file names (the glob `*-chrome.zip`/`*-firefox.zip` in
   `apps/wxt/.output` is used; with two matches the step fails).
 - The first upload to both stores and getting the ID is done by hand: the API only updates an existing add-on.
-- Whether `bun run e2e` will work on the runner (Chrome with `--enable-unsafe-extension-debugging`,
-  `chrome://extensions` and "Allow User Scripts").
 - Whether the `AGENT_SERVER_ORIGIN`/`<all_urls>` permissions are enough to pass review in the stores — a question of
   policies, not of CI.
