@@ -1,0 +1,29 @@
+{
+	"name": "@repo/reactions",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./header": "./src/header.ts",
+		"./permissions": "./src/permissions.ts",
+		"./runtime.js": "./dist/runtime.js",
+		"./reactions.d.ts": "./reactions.d.ts",
+		"./prompt.md": "./prompt.md"
+	},
+	"scripts": {
+		"build": "bun run scripts/build.ts",
+		"test": "bun test",
+		"check-types": "bun check && bun check -p tsconfig.examples.json",
+		"lint": "biome check ."
+	},
+	"dependencies": {
+		"@repo/protocol": "workspace:*"
+	},
+	"devDependencies": {
+		"@repo/typescript-config": "workspace:*",
+		"bun-types": "^1.4.5",
+		"happy-dom": "^21.0.4",
+		"typescript": "catalog:"
+	}
+}

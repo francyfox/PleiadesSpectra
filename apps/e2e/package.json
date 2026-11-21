@@ -1,0 +1,18 @@
+{
+	"name": "e2e",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "cd ../../packages/reactions && bun run build && cd ../../apps/wxt && bun run build",
+		"test": "bun run build && playwright test",
+		"check-types": "bun check"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.55.0",
+		"@repo/typescript-config": "workspace:*",
+		"@types/chrome": "^0.3.7",
+		"@types/node": "^26.6.6",
+		"typescript": "catalog:"
+	}
+}

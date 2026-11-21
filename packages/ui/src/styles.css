@@ -1,0 +1,340 @@
+:root,
+:host {
+	--ui-bg: #ffffff;
+	--ui-fg: #1b1f2a;
+	--ui-muted: #5b6475;
+	--ui-border: #d7dbe4;
+	--ui-accent: #3b6fe0;
+	--ui-accent-fg: #ffffff;
+	--ui-danger: #d93c3c;
+	--ui-live: #d93c3c;
+	--ui-ok: #2f9e5b;
+	--ui-scroll: #b9bfce;
+	--ui-scroll-hover: #8d95a8;
+	--ui-radius: 12px;
+	--ui-shadow: 0 6px 24px rgba(15, 20, 35, 0.18);
+	--ui-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root,
+	:host {
+		--ui-bg: #1c2030;
+		--ui-fg: #eef0f6;
+		--ui-muted: #a0a8bb;
+		--ui-border: #343a50;
+		--ui-accent: #6f96f2;
+		--ui-accent-fg: #0f1320;
+		--ui-scroll: #4a5270;
+		--ui-scroll-hover: #6a739a;
+	}
+}
+
+.ui-button {
+	font: 500 14px / 1 var(--ui-font);
+	padding: 10px 14px;
+	border-radius: 10px;
+	border: 1px solid transparent;
+	cursor: pointer;
+	transition: filter 120ms;
+}
+
+.ui-button:focus-visible,
+.ui-switch:focus-visible {
+	outline: 2px solid var(--ui-accent);
+	outline-offset: 2px;
+}
+.ui-button--primary {
+	background: var(--ui-accent);
+	color: var(--ui-accent-fg);
+}
+.ui-button--primary:hover {
+	background: color-mix(in srgb, var(--ui-accent) 80%, var(--ui-fg));
+}
+.ui-button--ghost {
+	background: transparent;
+	color: var(--ui-fg);
+	border-color: var(--ui-border);
+}
+.ui-button--ghost:hover {
+	background: var(--ui-border);
+}
+.ui-button--danger {
+	background: var(--ui-danger);
+	color: #ffffff;
+}
+.ui-button--danger:hover {
+	background: color-mix(in srgb, var(--ui-danger) 78%, #000000);
+}
+
+.ui-card {
+	font-family: var(--ui-font);
+	color: var(--ui-fg);
+	background: var(--ui-bg);
+	border: 1px solid var(--ui-border);
+	border-radius: var(--ui-radius);
+	box-shadow: var(--ui-shadow);
+	padding: 14px;
+}
+
+.ui-chip {
+	display: inline-block;
+	font: 500 12px / 1 var(--ui-font);
+	padding: 5px 9px;
+	border-radius: 999px;
+	color: var(--ui-muted);
+	border: 1px solid var(--ui-border);
+}
+
+.ui-chip[data-tone="danger"] {
+	color: var(--ui-danger);
+	border-color: var(--ui-danger);
+}
+
+.ui-status-dot {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--ui-muted);
+}
+.ui-status-dot[data-tone="live"] {
+	background: var(--ui-live);
+}
+.ui-status-dot[data-tone="ok"] {
+	background: var(--ui-ok);
+}
+.ui-status-dot[data-tone="busy"] {
+	background: var(--ui-live);
+	animation: ui-pulse 900ms ease-in-out infinite;
+}
+@keyframes ui-pulse {
+	50% {
+		opacity: 0.3;
+	}
+}
+
+.ui-switch {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font: 500 14px / 1 var(--ui-font);
+	color: var(--ui-fg);
+	background: none;
+	border: 0;
+	padding: 0;
+	cursor: pointer;
+}
+.ui-switch__track {
+	position: relative;
+	width: 34px;
+	height: 20px;
+	border-radius: 999px;
+	background: var(--ui-border);
+	transition: background 120ms;
+}
+.ui-switch__track::after {
+	content: "";
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: #ffffff;
+	transition: transform 120ms;
+}
+.ui-switch[aria-checked="true"] .ui-switch__track {
+	background: var(--ui-accent);
+}
+.ui-switch[aria-checked="true"] .ui-switch__track::after {
+	transform: translateX(14px);
+}
+
+.ui-toast {
+	font: 500 14px / 1.3 var(--ui-font);
+	color: var(--ui-fg);
+	background: var(--ui-bg);
+	border: 1px solid var(--ui-border);
+	border-radius: var(--ui-radius);
+	box-shadow: var(--ui-shadow);
+	padding: 10px 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ui-button,
+	.ui-switch__track,
+	.ui-switch__track::after,
+	.ui-status-dot {
+		transition: none;
+		animation: none;
+	}
+}
+
+.ui-dialog-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 1000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16px;
+	background: rgba(10, 14, 25, 0.55);
+}
+.ui-dialog {
+	font-family: var(--ui-font);
+	color: var(--ui-fg);
+	background: var(--ui-bg);
+	border: 1px solid var(--ui-border);
+	border-radius: var(--ui-radius);
+	box-shadow: var(--ui-shadow);
+	width: min(560px, 100%);
+	max-height: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 18px;
+	overflow: hidden;
+	position: relative;
+}
+.ui-dialog > h2 {
+	margin: 0;
+	padding-right: 44px;
+}
+.ui-dialog__close {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	width: 32px;
+	height: 32px;
+	border-color: transparent;
+}
+
+.ui-icon {
+	flex: none;
+	vertical-align: middle;
+}
+
+.ui-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	border-bottom: 1px solid var(--ui-border);
+}
+.ui-tab {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font: 500 14px / 1 var(--ui-font);
+	color: var(--ui-muted);
+	background: none;
+	border: 0;
+	border-bottom: 2px solid transparent;
+	padding: 10px 12px;
+	margin-bottom: -1px;
+	cursor: pointer;
+}
+.ui-tab:hover {
+	color: var(--ui-fg);
+	background: var(--ui-border);
+}
+.ui-tab[aria-selected="true"] {
+	color: var(--ui-fg);
+	border-bottom-color: var(--ui-accent);
+}
+.ui-tab:focus-visible {
+	outline: 2px solid var(--ui-accent);
+	outline-offset: -2px;
+}
+
+.ui-card,
+.ui-card *,
+.ui-dialog,
+.ui-dialog * {
+	box-sizing: border-box;
+}
+
+.ui-input {
+	flex: 1;
+	min-width: 0;
+	max-width: 100%;
+	font:
+		12px / 1.5 ui-monospace,
+		monospace;
+	color: var(--ui-fg);
+	background: transparent;
+	border: 1px solid var(--ui-border);
+	border-radius: 8px;
+	padding: 9px 10px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.ui-input:focus-visible {
+	outline: 2px solid var(--ui-accent);
+	outline-offset: 1px;
+}
+
+.ui-icon-button {
+	flex: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	color: var(--ui-fg);
+	background: transparent;
+	border: 1px solid var(--ui-border);
+	border-radius: 8px;
+	cursor: pointer;
+}
+.ui-icon-button:hover {
+	background: var(--ui-border);
+}
+.ui-icon-button:focus-visible {
+	outline: 2px solid var(--ui-accent);
+	outline-offset: 2px;
+}
+
+/* Firefox only knows the standard properties. */
+:root *,
+:host * {
+	scrollbar-width: thin;
+	scrollbar-color: var(--ui-scroll) transparent;
+}
+
+/* Chromium: a rounded thumb that is darker on hover. Its standard properties would switch this off. */
+@supports selector(::-webkit-scrollbar) {
+	:root *,
+	:host * {
+		scrollbar-width: auto;
+		scrollbar-color: auto;
+	}
+	::-webkit-scrollbar {
+		width: 12px;
+		height: 12px;
+	}
+	::-webkit-scrollbar-track,
+	::-webkit-scrollbar-corner {
+		background: transparent;
+	}
+	::-webkit-scrollbar-thumb {
+		background-color: var(--ui-scroll);
+		background-clip: content-box;
+		border: 3px solid transparent;
+		border-radius: 999px;
+	}
+	::-webkit-scrollbar-thumb:hover {
+		background-color: var(--ui-scroll-hover);
+	}
+}
+
+.ui-icon-button--danger:hover {
+	color: #ffffff;
+	background: var(--ui-danger);
+	border-color: var(--ui-danger);
+}
+
+.ui-switch:hover .ui-switch__track {
+	filter: brightness(0.88);
+}

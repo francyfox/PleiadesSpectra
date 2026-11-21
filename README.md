@@ -1,159 +1,110 @@
-# Turborepo starter
+# PleiadesSpectra
 
-This Turborepo starter is maintained by the Turborepo core team.
+A browser extension that turns your camera into a remote control for any web page. Entry for the Presage
+SmartSpectra SDK Challenge. Small JavaScript **scripts** decide what a smile, a nod, a lean of the head, a pulse or a
+breath does on a site; the SmartSpectra SDK runs in a small **local server**, because it has no browser version.
 
-## Using this example
-
-Run the following command:
-
-```sh
-npx create-turbo@latest
+```
+camera → extension → ws://localhost:3001 → server (SmartSpectra SDK) → gestures and signals → script on the page
 ```
 
-## What's inside?
+- `apps/wxt`: the browser extension (WXT, Chrome and Firefox).
+- `apps/server`: the local server (Elysia on Bun) that hosts the SDK session. API docs at <http://localhost:3001/docs>.
+- `apps/demo`: demo pages to try the example scripts on (a blog, a black sleep screen, a breathing screen).
+- `packages/reactions`: the script API. `example/scripts`: ready scripts.
 
-This Turborepo includes the following packages/apps:
+## You need
 
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `@next/eslint-plugin-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+- A SmartSpectra API key from <https://physiology.presagetech.com/auth/register>.
+- Chrome or Firefox and a camera. Put your face and upper chest in the frame, evenly lit: pulse and breathing need it.
+- Put the key in `apps/server/.env.local`:
 
 ```sh
-cd my-turborepo
-turbo build
+SMARTSPECTRA_API_KEY=your-key
 ```
 
-Without global `turbo`, use your package manager:
+## 1. Run the server and the demo
+
+### Option A: Docker Compose
 
 ```sh
-cd my-turborepo
-npx turbo build
-bun exec turbo build
-bun exec turbo build
+docker compose up --build
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+The server is on `127.0.0.1:3001`, the demo on `127.0.0.1:4010` (change them with `SERVER_PORT` and `DEMO_PORT`).
+The ports are published on this machine only. The key is read from `apps/server/.env.local` when the container starts
+and is never copied into an image. The image needs glibc (the SDK's native library does), so it is built on
+`oven/bun` and installs `mesa-vulkan-drivers`, a software Vulkan that the expression model needs when there is no GPU.
+Tested on Linux x64 only (the SDK also ships a Linux arm64 build, not tried).
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+### Option B: Bun
 
 ```sh
-turbo build --filter=docs
+bun install
+bun run dev          # server (3001), demo (4010) and the extension in a dev browser
 ```
 
-Without global `turbo`:
+Without Docker in production mode: `bun run build`, then `cd apps/server/dist && bun install --production && bun index.js`
+(the SDK is not in the bundle, it loads a native library).
+
+## 2. Load the extension
 
 ```sh
-npx turbo build --filter=docs
-bun exec turbo build --filter=docs
-bun exec turbo build --filter=docs
+bun run --cwd apps/wxt build            # Firefox: build:firefox
 ```
 
-### Develop
+Chrome: open `chrome://extensions`, turn on Developer mode, press **Load unpacked** and choose
+`apps/wxt/.output/chrome-mv3`. Then open the extension's **Details** and turn on **Allow User Scripts** (the extension runs
+your scripts through the browser's user scripts API). `bun run dev` does the loading for you in a separate dev browser.
 
-To develop all apps and packages, run the following command:
+Open the popup: it shows the server status, a camera preview with its frame rate (the SDK needs 25 fps or more),
+the face mask that the SDK found, and the **Spectra check**.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+## 3. Make a script
+
+A script is one plain `.js` file with a header and a chain. No imports, no build step.
+
+```js
+// ==Reaction==
+// @name      Scroll by tilt
+// @match     *://*/*
+// @camera    always
+// @gestures  tilt-down, tilt-up
+// ==/Reaction==
+
+reaction("scroll")
+  .cooldown(400)
+  .onGesture("tilt-down", () => scrollBy({ top: 400, behavior: "smooth" }))
+  .onGesture("tilt-up", () => scrollBy({ top: -400, behavior: "smooth" }));
+```
+
+- **Install:** popup → **Scripts** → choose the file → read what it asks for → **Install**. Try the ready ones in
+  `example/scripts` on the demo pages: `rate-our-service.js` (smile or nod to rate), `scroll-page.js` (head navigation),
+  `heart-rate.js`, `breathing-pinwheel.js`.
+- **Gestures:** `nod`, `shake`, `tilt-down`, `tilt-up`, `roll-left`, `roll-right`, `smile`, `confused`, `talking`.
+  **Signals** (raw, declared in `@signals`): `blink`, `pose`, `expression`, `pulse`, `breathing`.
+- **With an AI agent:** popup → **Connect to AI**, then ask the agent to write a script for a site. The agent can only
+  *propose* it: you see the code, the sites and what it reads from your face, and press Install yourself. Give the
+  agent `packages/reactions/prompt.md` and `packages/reactions/reactions.d.ts` (types for `// @ts-check`).
+- **Full guide:** [`docs/usage.md`](docs/usage.md).
+
+## Consent and data handling
+
+- The camera is off until a script you installed needs it; a red dot and Beta, the mascot, show whenever it runs, and
+  one click pauses it.
+- Video goes only to the server on your own machine, is processed in memory and never saved.
+- SDK telemetry is off by default (`SMARTSPECTRA_TELEMETRY`); the SDK still contacts Presage to check the API key.
+- Scripts get only the gestures and signals they declare. Scripts are page code: install only ones you trust.
+- Not a medical tool. Pulse and breathing are rough estimates from video.
+
+## Development
 
 ```sh
-cd my-turborepo
-turbo dev
+bun run build         # turbo: server, demo, extension
+bun run check-types
+bun run lint          # Biome; lint:fix writes the fixes
+bun run e2e           # Playwright in a real Chrome (google-chrome-stable, or set CHROME_PATH)
 ```
 
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-bun exec turbo dev
-bun exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-bun exec turbo dev --filter=web
-bun exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-bun exec turbo login
-bun exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-bun exec turbo link
-bun exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+Aliases: in `apps/wxt` `@/…` is `apps/wxt/src`; in `apps/server` `#lib/…` and `#modules/…` are under `src/`.
+Workspace packages are imported by name (`@repo/…`).

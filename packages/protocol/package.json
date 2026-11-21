@@ -1,0 +1,20 @@
+{
+	"name": "@repo/protocol",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"check-types": "bun check",
+		"lint": "biome check ."
+	},
+	"devDependencies": {
+		"@repo/typescript-config": "workspace:*",
+		"typescript": "catalog:"
+	},
+	"dependencies": {
+		"zod": "^4.6.7"
+	}
+}

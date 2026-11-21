@@ -1,0 +1,15 @@
+# Nothing from the machine goes into an image: no secrets, no installed packages, no builds.
+.git
+**/node_modules
+**/.env
+**/.env.*
+**/dist
+**/.output
+**/.wxt
+**/.turbo
+**/test-results
+**/chrome-data
+.claude
+.agents
+docs
+example

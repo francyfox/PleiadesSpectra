@@ -1,0 +1,152 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Build and package only, do not publish to the stores"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  BUN_VERSION: "1.4.3" # same as devEngines.packageManager in package.json
+
+jobs:
+  build:
+    name: Build and package
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+
+      - name: Read version and match it with the tag
+        id: version
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          DRY_RUN: ${{ inputs.dry-run }}
+        run: |
+          VERSION="$(node -p "require('./apps/wxt/package.json').version")"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if [ "$REF_TYPE" = "tag" ]; then
+            if [ "$REF_NAME" != "v$VERSION" ]; then
+              echo "::error::Tag $REF_NAME does not match apps/wxt/package.json version v$VERSION"
+              exit 1
+            fi
+          elif [ "$DRY_RUN" != "true" ]; then
+            echo "::error::Publishing is possible only from a v* tag"
+            exit 1
+          fi
+
+      - name: Build reactions (runtime.js, reactions.d.ts)
+        run: bun run --cwd packages/reactions build
+
+      - name: Zip for Chrome
+        run: bun run --cwd apps/wxt zip
+      - name: Zip for Firefox
+        run: bun run --cwd apps/wxt zip:firefox
+
+      - name: Collect files
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          mkdir -p release
+          CHROME_ZIP="$(ls apps/wxt/.output/*-chrome.zip)"
+          FIREFOX_ZIP="$(ls apps/wxt/.output/*-firefox.zip)"
+          [ "$(echo "$CHROME_ZIP" | wc -l)" = 1 ] && [ "$(echo "$FIREFOX_ZIP" | wc -l)" = 1 ]
+          cp "$CHROME_ZIP" "release/spectra-$VERSION-chrome.zip"
+          cp "$FIREFOX_ZIP" "release/spectra-$VERSION-firefox.zip"
+          cp packages/reactions/reactions.d.ts release/reactions.d.ts
+          # Firefox review needs the whole monorepo: the extension imports workspace packages from packages/*,
+          # and the sources zip that `wxt zip -b firefox` makes contains only apps/wxt.
+          git archive --format=zip --prefix="spectra-$VERSION-sources/" \
+            -o "release/spectra-$VERSION-sources.zip" HEAD
+          ls -l release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-files
+          path: release/
+          if-no-files-found: error
+          retention-days: 30
+
+  github-release:
+    name: GitHub Release
+    needs: build
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-files
+          path: release
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh release create "$TAG" --repo "$REPO" --title "$TAG" --generate-notes \
+            release/*-chrome.zip release/*-firefox.zip release/*-sources.zip release/reactions.d.ts
+
+  publish:
+    name: Publish to the stores
+    needs: [build, github-release]
+    if: github.ref_type == 'tag' && (github.event_name == 'push' || inputs.dry-run == false)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-files
+          path: release
+      - name: wxt submit
+        working-directory: apps/wxt
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+          FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+          FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+        run: |
+          bunx wxt submit \
+            --chrome-zip "$GITHUB_WORKSPACE/release/spectra-$VERSION-chrome.zip" \
+            --firefox-zip "$GITHUB_WORKSPACE/release/spectra-$VERSION-firefox.zip" \
+            --firefox-sources-zip "$GITHUB_WORKSPACE/release/spectra-$VERSION-sources.zip"

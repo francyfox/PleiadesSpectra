@@ -1,20 +1,29 @@
-"use client";
+import type { PropsWithChildren } from "@kitajs/html";
+import { classNames } from "./class-names";
 
-import { ReactNode } from "react";
+export type ButtonVariant = "primary" | "ghost" | "danger";
 
-interface ButtonProps {
-  children: ReactNode;
-  className?: string;
-  appName: string;
+export type ButtonProps = PropsWithChildren<
+	JSX.HtmlButtonTag & { variant?: ButtonVariant }
+>;
+
+export function Button({
+	variant = "primary",
+	class: className,
+	children,
+	...attributes
+}: ButtonProps) {
+	return (
+		<button
+			type="button"
+			class={classNames(
+				"ui-button",
+				`ui-button--${variant}`,
+				className as string,
+			)}
+			{...attributes}
+		>
+			{children}
+		</button>
+	);
 }
-
-export const Button = ({ children, className, appName }: ButtonProps) => {
-  return (
-    <button
-      className={className}
-      onClick={() => alert(`Hello from your ${appName} app!`)}
-    >
-      {children}
-    </button>
-  );
-};

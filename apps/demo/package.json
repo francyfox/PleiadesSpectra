@@ -1,0 +1,16 @@
+{
+	"name": "demo",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "bun run --watch src/index.ts",
+		"build": "bun scripts/build.ts",
+		"check-types": "bun check"
+	},
+	"devDependencies": {
+		"bun-types": "latest",
+		"@repo/typescript-config": "workspace:*",
+		"typescript": "catalog:"
+	}
+}

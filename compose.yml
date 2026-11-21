@@ -1,0 +1,33 @@
+# The production version: `docker compose up --build`.
+# Both ports are published on the loopback of this machine only (127.0.0.1): the server is local by design.
+# The SmartSpectra API key is read from apps/server/.env.local (or .env), which never goes into an image.
+name: pleiades-spectra
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    env_file:
+      - path: apps/server/.env
+        required: false
+      - path: apps/server/.env.local
+        required: false
+    environment:
+      MODE: production
+      HOST: 0.0.0.0
+      PORT: "3001"
+    ports:
+      - "127.0.0.1:${SERVER_PORT:-3001}:3001"
+    restart: unless-stopped
+
+  demo:
+    build:
+      context: .
+      dockerfile: apps/demo/Dockerfile
+    environment:
+      DEMO_HOST: 0.0.0.0
+      DEMO_PORT: "4010"
+    ports:
+      - "127.0.0.1:${DEMO_PORT:-4010}:4010"
+    restart: unless-stopped

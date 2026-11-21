@@ -1,0 +1,111 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BUN_VERSION: "1.4.3" # same as devEngines.packageManager in package.json
+
+jobs:
+  # Lint checks only the changed files (against the PR base or the previous push): the whole repo still has old biome findings
+  # (apps/server/src/index.ts, `!important` in CSS, apps/wxt/public/wxt.svg) and unformatted markdown.
+  # Once they are fixed, replace the step with `bunx biome check .`.
+  lint:
+    name: Lint (biome, changed files)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+      - name: Biome on changed files
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            BASE_SHA="$(git rev-parse HEAD~1 2>/dev/null || git rev-parse HEAD)"
+          fi
+          echo "Checking files changed since $BASE_SHA"
+          bunx biome check --changed --since="$BASE_SHA" --no-errors-on-unmatched
+
+  check:
+    name: Types, tests, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+      - uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: turbo-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+      - name: Check types
+        run: bun run check-types
+      - name: Unit tests
+        # turbo.json has no `test` task yet, so the only package with tests runs directly
+        run: bun run --cwd packages/reactions test
+      - name: Build everything (reactions, extension)
+        run: bun run build
+      - name: Generated reactions.d.ts is up to date
+        run: |
+          bun run --cwd packages/reactions build
+          git diff --exit-code -- packages/reactions/reactions.d.ts
+
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+      # The tests start the Chrome installed on the runner themselves (headless=new, remote debugging),
+      # so neither a Playwright browser download nor xvfb is needed.
+      - name: Show Chrome version
+        run: google-chrome-stable --version
+      - name: E2E
+        run: bun run e2e
+        env:
+          CHROME_PATH: google-chrome-stable
+      - name: Upload Playwright results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-results
+          path: apps/e2e/test-results
+          if-no-files-found: ignore
+          retention-days: 7

@@ -1,27 +1,12 @@
-import { type JSX } from "react";
+import type { PropsWithChildren } from "@kitajs/html";
+import { classNames } from "./class-names";
 
-export function Card({
-  className,
-  title,
-  children,
-  href,
-}: {
-  className?: string;
-  title: string;
-  children: React.ReactNode;
-  href: string;
-}): JSX.Element {
-  return (
-    <a
-      className={className}
-      href={`${href}?utm_source=create-turbo&utm_medium=basic&utm_campaign=create-turbo"`}
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      <h2>
-        {title} <span>-&gt;</span>
-      </h2>
-      <p>{children}</p>
-    </a>
-  );
+export type CardProps = PropsWithChildren<JSX.HtmlTag>;
+
+export function Card({ class: className, children, ...attributes }: CardProps) {
+	return (
+		<div class={classNames("ui-card", className as string)} {...attributes}>
+			{children}
+		</div>
+	);
 }
