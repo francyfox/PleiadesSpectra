@@ -16,13 +16,15 @@
 <p align="center">
   <b>Available in</b>
   <a href="https://github.com/francyfox/PleiadesSpectra/releases/latest"><img alt="Chrome" src="https://img.shields.io/badge/Chrome-zip-4285f4?style=flat-square&logo=googlechrome&logoColor=white"></a>
-  <a href="https://github.com/francyfox/PleiadesSpectra/releases/latest"><img alt="Firefox" src="https://img.shields.io/badge/Firefox-zip-ff7139?style=flat-square&logo=firefoxbrowser&logoColor=white"></a>
+  <a href="https://github.com/francyfox/PleiadesSpectra/releases/latest"><img alt="Firefox: not working yet" src="https://img.shields.io/badge/Firefox-not%20working%20yet-9ca3af?style=flat-square&logo=firefoxbrowser&logoColor=white"></a>
 </p>
 
 <p align="center">
-  Not in the browser stores yet: download the zip for your browser from the
+  <b>Right now only the Chrome version works.</b> The Firefox build is in the release too, but it has not been made to
+  work yet.<br>
+  Not in the browser stores yet: download the Chrome zip from the
   <a href="https://github.com/francyfox/PleiadesSpectra/releases/latest">latest release</a> and load it as in
-  <a href="#2-load-the-extension">step 2</a> (Firefox: as a temporary add-on).
+  <a href="#2-load-the-extension">step 2</a>.
 </p>
 
 A browser extension that turns your camera into a remote control for any web page. Entry for the Presage
@@ -41,7 +43,7 @@ camera → extension → ws://localhost:3001 → server (SmartSpectra SDK) → g
 ## You need
 
 - A SmartSpectra API key from <https://physiology.presagetech.com/auth/register>.
-- Chrome or Firefox and a camera. Put your face and upper chest in the frame, evenly lit: pulse and breathing need it.
+- Chrome and a camera (the Firefox version does not work yet). Put your face and upper chest in the frame, evenly lit: pulse and breathing need it.
 - Put the key in `apps/server/.env.local`:
 
 ```sh
@@ -85,9 +87,9 @@ Chrome: open `chrome://extensions`, turn on Developer mode, press **Load unpacke
 **Allow User Scripts** (the extension runs your scripts through the browser's user scripts API). `bun run dev` does the
 loading for you in a separate dev browser.
 
-Firefox (140 or newer): open `about:debugging#/runtime/this-firefox`, press **Load Temporary Add-on** and choose the
-Firefox zip (or `apps/wxt/.output/firefox-mv3/manifest.json`). An unsigned add-on cannot be installed for good in the
-regular Firefox, so it goes away when the browser closes. Then press **Allow user scripts** in the popup.
+Firefox: **does not work yet**, use Chrome. The build exists (`build:firefox`, and a zip in the release) and Firefox 140 or
+newer loads it as a temporary add-on (`about:debugging#/runtime/this-firefox` → **Load Temporary Add-on**), but running
+scripts there has not been checked. An unsigned add-on cannot be installed for good in the regular Firefox.
 
 Open the popup: it shows the server status, a camera preview with its frame rate (the SDK needs 25 fps or more),
 the face mask that the SDK found, and the **Spectra check**.

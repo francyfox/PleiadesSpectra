@@ -10,6 +10,10 @@ Contents: [The smallest script](#the-smallest-script) · [File format](#file-for
 [The chain](#the-chain) · [The context](#the-context) · [Gestures](#gestures) · [Signals](#signals) · [Camera modes](#camera-modes) ·
 [Install and test](#install-and-test) · [Write it with an AI agent](#write-it-with-an-ai-agent) · [Rules](#rules)
 
+> **Status:** right now only the **demo blog** (`apps/demo`, <http://localhost:4010>) is supported. The example scripts
+> are written for it (`@match *://localhost/*`), and the extension has been tried on that site only, in Chrome. Scripts
+> for other sites follow the same rules below, but have not been tested there.
+
 ## The smallest script
 
 ```js
@@ -397,7 +401,7 @@ Checked with `tsc --allowJs --checkJs` (the engine behind VS Code): a script wit
 5. Use **Spectra check** in the popup to see what Spectra recognises, and turn on **Show logs** to see the raw
    responses in the browser console.
 
-To try a script on a ready page, run `bun run dev` (it starts the demo app `apps/demo` with the others; a demo blog with 15 articles and a "Rate us" button on
+Only the demo blog is supported for now, so try a script there: run `bun run dev` (it starts the demo app `apps/demo` with the others; a demo blog with 15 articles and a "Rate us" button on
 <http://localhost:4010>, port from `DEMO_PORT`) and install `example/scripts/rate-our-service.js`. `bun run e2e` runs the same scenario in a
 real Chrome (`google-chrome-stable`, or set `CHROME_PATH`).
 
