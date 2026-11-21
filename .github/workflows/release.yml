@@ -109,8 +109,13 @@ jobs:
           TAG: ${{ github.ref_name }}
           REPO: ${{ github.repository }}
         run: |
-          gh release create "$TAG" --repo "$REPO" --title "$TAG" --generate-notes \
-            release/*-chrome.zip release/*-firefox.zip release/*-sources.zip release/reactions.d.ts
+          files="release/*-chrome.zip release/*-firefox.zip release/*-sources.zip release/reactions.d.ts"
+          if gh release view "$TAG" --repo "$REPO" > /dev/null 2>&1; then
+            # A tag that was moved and built again: replace the files of its release instead of failing.
+            gh release upload "$TAG" --repo "$REPO" --clobber $files
+          else
+            gh release create "$TAG" --repo "$REPO" --title "$TAG" --generate-notes $files
+          fi
 
   publish:
     name: Publish to the stores
