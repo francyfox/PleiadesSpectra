@@ -350,7 +350,15 @@ files too. With the file in place you see types and docs for `reaction`, `onVisi
 such as `expect: ["wink"]` or `ctx.nothing()` is underlined.
 
 1. Save [`reactions.d.ts`](../packages/reactions/reactions.d.ts) next to your script. The extension help
-   (**How to use → For developers**) has **Copy typings** and **Download reactions.d.ts** buttons.
+   (**How to use → For developers**) has **Copy typings** and **Download reactions.d.ts** buttons. Or fetch the latest
+   release from the CDN (jsDelivr serves it straight from this repository):
+
+   ```sh
+   curl -O https://cdn.jsdelivr.net/gh/francyfox/PleiadesSpectra/packages/reactions/reactions.d.ts
+   ```
+
+   Pin a version with `@v0.1.2` after the repository name. The editor cannot load the types from a URL (a
+   `/// <reference path="https://…">` is not followed), so download the file and keep it next to your scripts.
 2. Start the script with two lines:
 
    ```js

@@ -1,4 +1,29 @@
-# PleiadesSpectra
+<p align="center">
+  <img src="apps/wxt/public/icon/128.png" alt="Beta, the mascot of PleiadesSpectra" width="96" height="96">
+</p>
+
+<h1 align="center">PleiadesSpectra</h1>
+
+<p align="center">
+  <a href="https://github.com/francyfox/PleiadesSpectra/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/francyfox/PleiadesSpectra/ci.yml?branch=main&label=CI&style=flat-square"></a>
+  <a href="https://github.com/francyfox/PleiadesSpectra/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/francyfox/PleiadesSpectra?style=flat-square"></a>
+  <img alt="Presage SmartSpectra SDK Challenge" src="https://img.shields.io/badge/Presage%20SmartSpectra-SDK%20Challenge-7c3aed?style=flat-square">
+  <img alt="Bun" src="https://img.shields.io/badge/Bun-1.4-000000?style=flat-square&logo=bun&logoColor=white">
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-7-3178c6?style=flat-square&logo=typescript&logoColor=white">
+  <img alt="WXT" src="https://img.shields.io/badge/WXT-extension-67d55e?style=flat-square">
+</p>
+
+<p align="center">
+  <b>Available in</b>
+  <a href="https://github.com/francyfox/PleiadesSpectra/releases/latest"><img alt="Chrome" src="https://img.shields.io/badge/Chrome-zip-4285f4?style=flat-square&logo=googlechrome&logoColor=white"></a>
+  <a href="https://github.com/francyfox/PleiadesSpectra/releases/latest"><img alt="Firefox" src="https://img.shields.io/badge/Firefox-zip-ff7139?style=flat-square&logo=firefoxbrowser&logoColor=white"></a>
+</p>
+
+<p align="center">
+  Not in the browser stores yet: download the zip for your browser from the
+  <a href="https://github.com/francyfox/PleiadesSpectra/releases/latest">latest release</a> and load it as in
+  <a href="#2-load-the-extension">step 2</a> (Firefox: as a temporary add-on).
+</p>
 
 A browser extension that turns your camera into a remote control for any web page. Entry for the Presage
 SmartSpectra SDK Challenge. Small JavaScript **scripts** decide what a smile, a nod, a lean of the head, a pulse or a
@@ -53,9 +78,16 @@ Without Docker in production mode: `bun run build`, then `cd apps/server/dist &&
 bun run --cwd apps/wxt build            # Firefox: build:firefox
 ```
 
+Or take a ready zip from the [latest release](https://github.com/francyfox/PleiadesSpectra/releases/latest) instead of building.
+
 Chrome: open `chrome://extensions`, turn on Developer mode, press **Load unpacked** and choose
-`apps/wxt/.output/chrome-mv3`. Then open the extension's **Details** and turn on **Allow User Scripts** (the extension runs
-your scripts through the browser's user scripts API). `bun run dev` does the loading for you in a separate dev browser.
+`apps/wxt/.output/chrome-mv3` (a release zip: unpack it first). Then open the extension's **Details** and turn on
+**Allow User Scripts** (the extension runs your scripts through the browser's user scripts API). `bun run dev` does the
+loading for you in a separate dev browser.
+
+Firefox (140 or newer): open `about:debugging#/runtime/this-firefox`, press **Load Temporary Add-on** and choose the
+Firefox zip (or `apps/wxt/.output/firefox-mv3/manifest.json`). An unsigned add-on cannot be installed for good in the
+regular Firefox, so it goes away when the browser closes. Then press **Allow user scripts** in the popup.
 
 Open the popup: it shows the server status, a camera preview with its frame rate (the SDK needs 25 fps or more),
 the face mask that the SDK found, and the **Spectra check**.
@@ -85,7 +117,8 @@ reaction("scroll")
   **Signals** (raw, declared in `@signals`): `blink`, `pose`, `expression`, `pulse`, `breathing`.
 - **With an AI agent:** popup → **Connect to AI**, then ask the agent to write a script for a site. The agent can only
   *propose* it: you see the code, the sites and what it reads from your face, and press Install yourself. Give the
-  agent `packages/reactions/prompt.md` and `packages/reactions/reactions.d.ts` (types for `// @ts-check`).
+  agent `packages/reactions/prompt.md` and `packages/reactions/reactions.d.ts` (types for `// @ts-check`). Both files are
+  also on the CDN: [`reactions.d.ts`](https://cdn.jsdelivr.net/gh/francyfox/PleiadesSpectra/packages/reactions/reactions.d.ts); pin a version by writing `PleiadesSpectra@v0.1.2` in the URL.
 - **Full guide:** [`docs/usage.md`](docs/usage.md).
 
 ## Consent and data handling
