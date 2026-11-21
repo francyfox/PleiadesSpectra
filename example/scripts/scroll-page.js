@@ -85,7 +85,7 @@ function putHeadOn(link) {
 function moveBetweenLinks(step) {
 	const links = visibleLinks();
 	if (links.length === 0) return;
-	const current = links.findIndex((link) => link === currentLink());
+	const current = links.indexOf(currentLink());
 	const first = step > 0 ? 0 : links.length - 1;
 	const next =
 		current === -1 ? first : (current + step + links.length) % links.length;

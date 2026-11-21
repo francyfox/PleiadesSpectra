@@ -6,7 +6,15 @@
 		"useIgnoreFile": true
 	},
 	"files": {
-		"ignoreUnknown": false
+		"ignoreUnknown": false,
+		"includes": [
+			"**",
+			"!**/*.md",
+			"!skills-lock.json",
+			"!.agents",
+			"!.claude",
+			"!apps/wxt/public"
+		]
 	},
 	"formatter": {
 		"enabled": true,
