@@ -205,7 +205,7 @@ function ReactionsPanel() {
 			{promptExamples.map((example, index) => (
 				<div class="help__prompt">
 					<div class="help__prompt-head">
-						<strong>{example.title}</strong>
+						<strong safe>{example.title}</strong>
 						<Button
 							variant="ghost"
 							class="help__prompt-copy"
@@ -219,7 +219,7 @@ function ReactionsPanel() {
 							<span class="help__prompt-copy-done">Copied!</span>
 						</Button>
 					</div>
-					<p>{example.prompt}</p>
+					<p safe>{example.prompt}</p>
 				</div>
 			))}
 		</div>
@@ -315,8 +315,8 @@ export function HelpDialog() {
 			x-show="isHelpOpen"
 			x-cloak=""
 			onClose="closeHelp"
+			header={<h2>How to use</h2>}
 		>
-			<h2>How to use</h2>
 			<Tabs aria-label="Audience">
 				<Tab
 					data-tab="simple"

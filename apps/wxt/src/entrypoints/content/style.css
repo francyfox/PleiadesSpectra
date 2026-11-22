@@ -15,7 +15,7 @@
 .beta {
 	--beta-width: 180px;
 	--beta-label-font: calc(var(--beta-width) * 0.1);
-	--beta-label-width: calc(var(--beta-width) * 0.67);
+	--beta-label-width: calc(var(--beta-width) * 0.87);
 	position: fixed;
 	z-index: 2147483647;
 	display: flex;

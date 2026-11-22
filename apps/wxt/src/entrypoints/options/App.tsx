@@ -102,13 +102,13 @@ function PluginRow() {
 					</Switch>
 				</div>
 				<div class="plugin__chips" x-chip-line="">
-					<template x-for="match in plugin.matches" x-bind:key="match">
-						<Chip x-text="match" />
-					</template>
 					<Chip
 						x-bind:data-tone="plugin.cameraTone"
 						x-text="plugin.cameraText"
 					/>
+					<template x-for="match in plugin.matches" x-bind:key="match">
+						<Chip x-text="match" />
+					</template>
 					<template x-for="gesture in plugin.gestures" x-bind:key="gesture">
 						<Chip x-text="gesture" />
 					</template>
@@ -125,16 +125,6 @@ function PluginRow() {
 						<p class="plugin__clash" x-text="warning" />
 					</template>
 				</div>
-				<p
-					class="plugins__physio"
-					x-show="plugin.cameraNote"
-					x-text="plugin.cameraNote"
-				/>
-				<p
-					class="plugins__physio"
-					x-show="plugin.physiologicalNote"
-					x-text="plugin.physiologicalNote"
-				/>
 			</div>
 		</Card>
 	);
@@ -147,8 +137,8 @@ function CodeDialog() {
 			x-show="hasCodeView"
 			x-cloak=""
 			onClose="closeCode"
+			header={<h2 x-text="codeViewTitle">Script code</h2>}
 		>
-			<h2 x-text="codeViewTitle">Script code</h2>
 			<div class="code-dialog__body" x-ref="codeBody" />
 		</Dialog>
 	);
@@ -176,8 +166,12 @@ function PluginList() {
 
 function InstallDialog() {
 	return (
-		<Dialog x-show="hasPreview" x-cloak="" onClose="dismissPreview">
-			<h2 x-text="previewTitle">Install script</h2>
+		<Dialog
+			x-show="hasPreview"
+			x-cloak=""
+			onClose="dismissPreview"
+			header={<h2 x-text="previewTitle">Install script</h2>}
+		>
 			<Chip class="plugins__proposal" x-show="previewIsProposal" x-cloak="">
 				Proposed by an AI agent
 			</Chip>
@@ -192,15 +186,13 @@ function InstallDialog() {
 					Author: <span x-text="previewAuthor" />
 				</p>
 				<div class="plugin__chips" x-chip-line="">
-					<template x-for="match in previewMatches" x-bind:key="match">
-						<Chip x-text="match" />
-					</template>
-				</div>
-				<div class="plugin__chips" x-chip-line="">
 					<Chip
 						x-bind:data-tone="previewCameraTone"
 						x-text="previewCameraText"
 					/>
+					<template x-for="match in previewMatches" x-bind:key="match">
+						<Chip x-text="match" />
+					</template>
 					<template x-for="gesture in previewGestures" x-bind:key="gesture">
 						<Chip x-text="gesture" />
 					</template>
@@ -255,12 +247,18 @@ function InstallDialog() {
 
 function AgentDialog() {
 	return (
-		<Dialog class="agent" x-show="isAgentOpen" x-cloak="" onClose="closeAgent">
-			<h2 class="agent__title">
-				Connect to AI
-				<AiLogos />
-			</h2>
-
+		<Dialog
+			class="agent"
+			x-show="isAgentOpen"
+			x-cloak=""
+			onClose="closeAgent"
+			header={
+				<h2 class="agent__title">
+					Connect to AI
+					<AiLogos />
+				</h2>
+			}
+		>
 			<div class="help__body">
 				<p>
 					Claude Code and other AI agents can write scripts for you and send
@@ -403,6 +401,18 @@ export function App() {
 				<p class="plugins__error" x-text="registrationError" />
 			</Card>
 			<InstallZone />
+			<p
+				class="plugins__physio"
+				x-show="hasAlwaysCameraScript"
+				x-cloak=""
+				x-text="alwaysCameraNote"
+			/>
+			<p
+				class="plugins__physio"
+				x-show="hasPhysiologicalScript"
+				x-cloak=""
+				x-text="physiologicalListNote"
+			/>
 			<PluginList />
 			<InstallDialog />
 			<CodeDialog />

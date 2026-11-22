@@ -149,10 +149,13 @@ async function runHeadNavigation(storage = createFakeStorage()) {
 
 test("the head navigation example moves between links like Tab and Shift+Tab, and a lean to the right opens the link", async () => {
 	const page = await runHeadNavigation();
+	expect(page.onLink()).toBe("One");
 
 	await page.gesture("tilt-down");
-	expect(page.onLink()).toBe("One");
+	expect(page.onLink()).toBe("Two");
 	await page.gesture("tilt-down");
+	expect(page.onLink()).toBe("Three");
+	await page.gesture("tilt-up");
 	expect(page.onLink()).toBe("Two");
 	await page.gesture("tilt-up");
 	expect(page.onLink()).toBe("One");
@@ -171,7 +174,7 @@ test("the head navigation example waits one cooldown between two tilts", async (
 	await page.gesture("tilt-down");
 	await page.gesture("tilt-down", 200);
 
-	expect(page.onLink()).toBe("One");
+	expect(page.onLink()).toBe("Two");
 	await page.close();
 });
 
@@ -191,7 +194,7 @@ test("a lean to the left switches to the scroll mode and back, and in it tilts s
 		{ top: 800, behavior: "smooth" },
 		{ top: -800, behavior: "smooth" },
 	]);
-	expect(page.onLink()).toBe("One");
+	expect(page.onLink()).toBe("Two");
 	expect(page.opened).toEqual([]);
 
 	await page.gesture("roll-left");
@@ -200,7 +203,7 @@ test("a lean to the left switches to the scroll mode and back, and in it tilts s
 		"Links: tilt to move, lean right to open",
 	]);
 	await page.gesture("tilt-down");
-	expect(page.onLink()).toBe("Two");
+	expect(page.onLink()).toBe("Three");
 	await page.close();
 });
 

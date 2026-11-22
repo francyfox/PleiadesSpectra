@@ -63,6 +63,25 @@ function visibleLinks() {
 	);
 }
 
+/**
+ * @param {HTMLAnchorElement} link
+ * @returns {boolean}
+ */
+function isInView(link) {
+	const { top, bottom } = link.getBoundingClientRect();
+	return bottom >= 0 && top <= innerHeight;
+}
+
+/** The link nearest to the top edge of the window among those on the screen; a link cut off by the edge comes last. */
+function topLinkInView() {
+	const inView = visibleLinks().filter(isInView);
+	/** @param {HTMLAnchorElement} link */
+	const tops = (link) => link.getBoundingClientRect().top;
+	const whole = inView.filter((link) => tops(link) >= 0);
+	const candidates = whole.length > 0 ? whole : inView;
+	return candidates.sort((a, b) => tops(a) - tops(b))[0];
+}
+
 /** The link the head is on; if it is on none yet, the one the browser has focused, like Tab continues from there. */
 function currentLink() {
 	const marked = document.querySelector(`[${FOCUS_ATTRIBUTE}]`);
@@ -86,6 +105,8 @@ function moveBetweenLinks(step) {
 	const links = visibleLinks();
 	if (links.length === 0) return;
 	const current = links.indexOf(currentLink());
+	const isOffScreen = current !== -1 && !isInView(links[current]);
+	if (isOffScreen) return putHeadOn(topLinkInView() ?? links[current]);
 	const first = step > 0 ? 0 : links.length - 1;
 	const next =
 		current === -1 ? first : (current + step + links.length) % links.length;
@@ -124,6 +145,7 @@ function tilt(direction) {
  */
 function switchMode(ctx) {
 	saveMode(mode === "links" ? "scroll" : "links");
+	keepMarkOnScreen();
 	ctx.toast(
 		mode === "links"
 			? "Links: tilt to move, lean right to open"
@@ -131,16 +153,53 @@ function switchMode(ctx) {
 	);
 }
 
+/** @param {HTMLAnchorElement} link */
+function markLink(link) {
+	for (const old of document.querySelectorAll(`[${FOCUS_ATTRIBUTE}]`))
+		old.removeAttribute(FOCUS_ATTRIBUTE);
+	link.setAttribute(FOCUS_ATTRIBUTE, "");
+}
+
+/**
+ * Puts the mark on the top link on the screen when there is none or it has scrolled out of view. The page does not
+ * move, so a person sees at once that the script is running and where the head is.
+ */
+function keepMarkOnScreen() {
+	if (mode !== "links") return;
+	const marked = document.querySelector(`[${FOCUS_ATTRIBUTE}]`);
+	if (marked instanceof HTMLAnchorElement && isInView(marked)) return;
+	const top = topLinkInView();
+	if (top) markLink(top);
+}
+
+/** How long the page has to stand still before the mark follows it, so it does not jump during a scroll. */
+const SCROLL_SETTLE_MS = 150;
+
+function followScroll() {
+	/** @type {ReturnType<typeof setTimeout> | undefined} */
+	let timer;
+	document.addEventListener(
+		"scroll",
+		() => {
+			clearTimeout(timer);
+			timer = setTimeout(keepMarkOnScreen, SCROLL_SETTLE_MS);
+		},
+		{ passive: true },
+	);
+}
+
 addFocusStyle();
+keepMarkOnScreen();
+followScroll();
 
 /**
  * The camera is on all the time (`@camera always`), so the cooldown keeps one long tilt from moving twice, and a
- * minimum confidence ignores a head that only drifts. No expression is used: a head tilted down looks gloomy to the
+ * minimum confidence of 0.5 (the confidence of a gesture right at its threshold) ignores a head that only drifts. No expression is used: a head tilted down looks gloomy to the
  * expression model, so the face cannot be trusted to switch anything.
  */
 reaction("head-navigation")
 	.cooldown(700)
-	.minConfidence(0.6)
+	.minConfidence(0.5)
 	.onGesture("tilt-down", tilt(1))
 	.onGesture("tilt-up", tilt(-1))
 	.onGesture("roll-right", openLinkUnderHead)

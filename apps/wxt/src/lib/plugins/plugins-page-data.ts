@@ -16,6 +16,7 @@ import { highlightJavaScript } from "../code-highlight";
 import { AGENT_DIALOG_HASH } from "../open-plugins-page";
 import { physiologicalNote, signalLabels } from "../signals/signals.utils";
 import {
+	ALWAYS_CAMERA_NOTE,
 	cameraConsentNote,
 	cameraModeText,
 	type InstallPreview,
@@ -157,6 +158,21 @@ function createPluginsPageData() {
 			return this.plugins.map((plugin) =>
 				toPluginRow(plugin, overlaps.get(plugin.id)),
 			);
+		},
+		get hasAlwaysCameraScript() {
+			return this.plugins.some((plugin) => plugin.header.camera === "always");
+		},
+		get alwaysCameraNote() {
+			return ALWAYS_CAMERA_NOTE;
+		},
+		get physiologicalListNote() {
+			const signals = this.plugins.flatMap(
+				(plugin) => plugin.header.signals ?? [],
+			);
+			return physiologicalNote(signals);
+		},
+		get hasPhysiologicalScript() {
+			return this.physiologicalListNote !== "";
 		},
 		get isEmpty() {
 			return this.plugins.length === 0;

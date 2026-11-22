@@ -50,9 +50,9 @@ test("the install window says that the camera stays on while the page is in fron
 		await plugins.setInputFiles("#plugin-file-input", SCROLL);
 		await expect(plugins.getByRole("heading", { name: TITLE })).toBeVisible();
 		await expect(
-			plugins.getByText(
-				/Keeps the camera on while a page this script works on/,
-			),
+			plugins
+				.getByRole("dialog")
+				.getByText(/Keeps the camera on while a page this script works on/),
 		).toBeVisible();
 	} finally {
 		await plugins.getByRole("button", { name: "Cancel" }).click();

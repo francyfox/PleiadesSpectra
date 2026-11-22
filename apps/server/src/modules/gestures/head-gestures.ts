@@ -9,10 +9,20 @@ export interface HeadGestureConfig {
 	shakeAmplitude: number;
 	/** Direction reversals inside the window that make a swing an oscillation rather than a single move. */
 	minReversals: number;
-	/** Pitch offset from the rest pose that counts as tilted. */
+	/** Smoothed pitch offset from the rest pose at which a tilt starts. */
 	tiltOffset: number;
+	/** A started tilt lasts until the smoothed offset falls below this, so jitter near `tiltOffset` does not end it. */
+	tiltReleaseOffset: number;
+	/** Looking down moves the nose less in the image than looking up (measured: 0.2 against 0.38), so down needs this share of the offsets. */
+	tiltDownShare: number;
+	/** Time constant of the pitch smoothing used by tilt, in ms. */
+	tiltSmoothingMs: number;
+	/** A head turned more than this many eye distances from the rest pose gives no valid pitch, so no tilt. */
+	tiltMaxYaw: number;
+	/** How slowly the neutral pitch follows a changed posture, in ms. Only offsets below `tiltOffset` are followed. */
+	tiltBaselineMs: number;
 	tiltHoldMs: number;
-	/** Roll away from the rest pose that counts as a lean to a shoulder, in radians (0.26 is about 15°). */
+	/** Roll away from the rest pose that counts as a lean to a shoulder, in radians (0.17 is about 10°). */
 	rollOffset: number;
 	rollHoldMs: number;
 	/** While tilted, the event repeats at this interval (for scrolling). */
@@ -26,8 +36,13 @@ export const defaultHeadGestureConfig: HeadGestureConfig = {
 	shakeAmplitude: 0.18,
 	minReversals: 2,
 	tiltOffset: 0.12,
+	tiltReleaseOffset: 0.06,
+	tiltDownShare: 0.65,
+	tiltSmoothingMs: 150,
+	tiltBaselineMs: 15000,
+	tiltMaxYaw: 0.3,
 	tiltHoldMs: 400,
-	rollOffset: 0.26,
+	rollOffset: 0.17,
 	rollHoldMs: 250,
 	tiltRepeatMs: 600,
 	cooldownMs: 900,
@@ -42,6 +57,11 @@ export interface HeadGestureState {
 	window: PoseSample[];
 	lastFiredAtMs: Partial<Record<Gesture, number>>;
 	tiltedSinceMs: number | null;
+	/** Pitch after exponential smoothing; tilt reads this, nod and shake read the raw pitch. */
+	smoothedPitch: number | null;
+	/** How far the neutral pitch has moved from the rest pose, as the head settled into another posture. */
+	pitchBaseline: number;
+	lastPoseMs: number | null;
 	/** When the head started leaning to a shoulder; null while upright. */
 	leanedSinceMs: number | null;
 	/** A lean fires once, and the head has to come back upright before the next one can. */
@@ -53,6 +73,9 @@ export function createHeadGestureState(): HeadGestureState {
 		window: [],
 		lastFiredAtMs: {},
 		tiltedSinceMs: null,
+		smoothedPitch: null,
+		pitchBaseline: 0,
+		lastPoseMs: null,
 		leanedSinceMs: null,
 		leanFired: false,
 	};
@@ -65,6 +88,9 @@ export function resetHeadGestureWindow(
 		...state,
 		window: [],
 		tiltedSinceMs: null,
+		smoothedPitch: null,
+		pitchBaseline: 0,
+		lastPoseMs: null,
 		leanedSinceMs: null,
 		leanFired: false,
 	};
@@ -178,6 +204,72 @@ function fire(
 	};
 }
 
+function weightOver(elapsedMs: number, timeConstantMs: number): number {
+	return 1 - Math.exp(-elapsedMs / timeConstantMs);
+}
+
+/**
+ * Pitch relative to the neutral pose, smoothed over time so the result does not depend on the frame rate.
+ * The neutral pose follows a slow change of posture (leaning back in the chair), but never an offset that is
+ * already a tilt, so a held tilt is not taken for the new neutral.
+ */
+function smoothPitch(
+	state: HeadGestureState,
+	pitch: number,
+	nowMs: number,
+	config: HeadGestureConfig,
+): HeadGestureState {
+	const { smoothedPitch, lastPoseMs } = state;
+	if (smoothedPitch === null || lastPoseMs === null)
+		return { ...state, smoothedPitch: pitch, lastPoseMs: nowMs };
+
+	const elapsedMs = nowMs - lastPoseMs;
+	const smoothed =
+		smoothedPitch +
+		(pitch - smoothedPitch) * weightOver(elapsedMs, config.tiltSmoothingMs);
+	const offset = smoothed - state.pitchBaseline;
+	const isDrifting =
+		state.tiltedSinceMs === null &&
+		Math.abs(offset) < tiltStartOffset(offset, config);
+	const pitchBaseline = isDrifting
+		? state.pitchBaseline +
+			offset * weightOver(elapsedMs, config.tiltBaselineMs)
+		: state.pitchBaseline;
+	return {
+		...state,
+		smoothedPitch: smoothed,
+		pitchBaseline,
+		lastPoseMs: nowMs,
+	};
+}
+
+/** Positive pitch is down, which has the lower threshold. */
+function directionShare(
+	pitchOffset: number,
+	config: HeadGestureConfig,
+): number {
+	return pitchOffset > 0 ? config.tiltDownShare : 1;
+}
+
+function tiltStartOffset(
+	pitchOffset: number,
+	config: HeadGestureConfig,
+): number {
+	return config.tiltOffset * directionShare(pitchOffset, config);
+}
+
+/** Whether the offset starts a tilt, or keeps one going: a started tilt has the lower release threshold. */
+function isTilted(
+	pitchOffset: number,
+	wasTilted: boolean,
+	config: HeadGestureConfig,
+): boolean {
+	const threshold = wasTilted
+		? config.tiltReleaseOffset * directionShare(pitchOffset, config)
+		: tiltStartOffset(pitchOffset, config);
+	return Math.abs(pitchOffset) >= threshold;
+}
+
 /** Sustained pitch away from rest: down scrolls down, up scrolls up; repeats while held. */
 function detectTilt(
 	state: HeadGestureState,
@@ -185,7 +277,7 @@ function detectTilt(
 	nowMs: number,
 	config: HeadGestureConfig,
 ): { state: HeadGestureState; events: GestureEvent[] } {
-	if (Math.abs(pitchOffset) < config.tiltOffset)
+	if (!isTilted(pitchOffset, state.tiltedSinceMs !== null, config))
 		return { state: { ...state, tiltedSinceMs: null }, events: [] };
 
 	const tiltedSinceMs = state.tiltedSinceMs ?? nowMs;
@@ -199,7 +291,7 @@ function detectTilt(
 
 	const confidence = Math.min(
 		1,
-		Math.abs(pitchOffset) / (config.tiltOffset * 2),
+		Math.abs(pitchOffset) / (tiltStartOffset(pitchOffset, config) * 2),
 	);
 	return {
 		state: {
@@ -266,7 +358,7 @@ export function detectHeadGestures(
 		nowMs,
 		config.windowMs,
 	);
-	const next = { ...state, window };
+	const next = smoothPitch({ ...state, window }, pose.pitch, nowMs, config);
 
 	const oscillation = detectOscillation(window, config);
 	if (
@@ -292,5 +384,12 @@ export function detectHeadGestures(
 
 	const lean = detectLean(next, pose.roll, nowMs, config);
 	if (lean.events.length > 0) return lean;
-	return detectTilt(lean.state, pose.pitch, nowMs, config);
+	if (Math.abs(pose.yaw) > config.tiltMaxYaw)
+		return { state: { ...lean.state, tiltedSinceMs: null }, events: [] };
+	return detectTilt(
+		lean.state,
+		(next.smoothedPitch ?? pose.pitch) - next.pitchBaseline,
+		nowMs,
+		config,
+	);
 }

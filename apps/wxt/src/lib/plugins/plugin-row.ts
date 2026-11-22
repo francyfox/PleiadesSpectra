@@ -1,6 +1,6 @@
 import type { Gesture } from "@repo/protocol";
-import { physiologicalNote, signalLabels } from "../signals/signals.utils";
-import { cameraConsentNote, cameraModeText } from "./install-preview";
+import { signalLabels } from "../signals/signals.utils";
+import { cameraModeText } from "./install-preview";
 import type { PluginOverlap } from "./plugin-overlap";
 import type { InstalledPlugin } from "./types";
 
@@ -16,9 +16,7 @@ export interface PluginRow {
 	matches: string[];
 	gestures: Gesture[];
 	signals: string[];
-	physiologicalNote: string;
 	cameraText: string;
-	cameraNote: string;
 	cameraTone: "danger" | "neutral";
 	enabledAria: string;
 	/** `"true"` when an enabled script shares pages with another enabled one; drives the card highlight. */
@@ -39,9 +37,7 @@ export function toPluginRow(
 		matches: header.matches,
 		gestures: header.gestures,
 		signals: signalLabels(header.signals ?? []),
-		physiologicalNote: physiologicalNote(header.signals ?? []),
 		cameraText: cameraModeText(header.camera),
-		cameraNote: cameraConsentNote(header.camera),
 		cameraTone: header.camera === "always" ? "danger" : "neutral",
 		enabledAria: String(plugin.enabled),
 		overlapAria: String(overlap !== undefined),

@@ -91,3 +91,63 @@ test("a small lean, or one that is over before the hold time, fires nothing", ()
 	expect(run(() => leaned(0.15), 2000)).toEqual([]);
 	expect(run((t) => leaned(t < 150 ? 0.35 : 0), 2000)).toEqual([]);
 });
+
+test("pitch jitter around the tilt threshold does not restart the hold", () => {
+	const events = run(
+		(t) => ({ yaw: 0, roll: 0, pitch: 0.16 + 0.05 * Math.sin(t / 25) }),
+		900,
+	);
+	expect(events.map((event) => event.gesture)).toEqual(["tilt-down"]);
+});
+
+test("a tilt stops repeating once the pitch falls below the release offset", () => {
+	const events = run(
+		(t) => ({ yaw: 0, roll: 0, pitch: t < 1000 ? 0.2 : 0.03 }),
+		2400,
+	);
+	expect(events).toHaveLength(2);
+});
+
+test("a single noisy frame is a nod at most, never a tilt", () => {
+	const events = run(
+		(t) => ({
+			yaw: 0,
+			roll: 0,
+			pitch: Math.round(t / FRAME_MS) % 20 === 0 ? 0.4 : 0,
+		}),
+		3000,
+	);
+	expect(events.filter((event) => event.gesture.startsWith("tilt"))).toEqual(
+		[],
+	);
+});
+
+test("a slow change of posture becomes the new neutral and no longer reads as a tilt", () => {
+	const events = run(
+		(t) => ({ yaw: 0, roll: 0, pitch: Math.max(-0.1, (-0.1 * t) / 5000) }),
+		60000,
+	);
+	expect(events).toEqual([]);
+});
+
+test("a tilt held for a few seconds is not absorbed into the neutral pose", () => {
+	const events = run(
+		(t) => ({ yaw: 0, roll: 0, pitch: t < 6000 ? 0.2 : 0 }),
+		8000,
+	);
+	expect(events.length).toBeGreaterThanOrEqual(5);
+});
+
+test("a turned head gives no tilt, whatever its pitch reads", () => {
+	const events = run(() => ({ yaw: 0.9, roll: 0, pitch: 0.4 }), 2000);
+	expect(events.filter((event) => event.gesture.startsWith("tilt"))).toEqual(
+		[],
+	);
+});
+
+test("a smaller offset than for up is enough for a tilt down", () => {
+	const down = run(() => ({ yaw: 0, roll: 0, pitch: 0.09 }), 700);
+	const up = run(() => ({ yaw: 0, roll: 0, pitch: -0.09 }), 700);
+	expect(down.map((event) => event.gesture)).toEqual(["tilt-down"]);
+	expect(up).toEqual([]);
+});

@@ -15,6 +15,8 @@ export type DialogProps = PropsWithChildren<
 	JSX.HtmlTag & {
 		/** Handler for the close button in the corner, e.g. the name of an Alpine method. */
 		onClose?: string;
+		/** Title area; shares one row with the close button, so a long title wraps instead of running under it. */
+		header?: JSX.Element;
 	}
 >;
 
@@ -26,6 +28,7 @@ export type DialogProps = PropsWithChildren<
  */
 export function Dialog({
 	onClose,
+	header,
 	class: className,
 	children,
 	...attributes
@@ -37,9 +40,16 @@ export function Dialog({
 				role="dialog"
 				aria-modal="true"
 			>
-				<IconButton label="Close" class="ui-dialog__close" x-on:click={onClose}>
-					<CloseIcon />
-				</IconButton>
+				<header class="ui-dialog__header">
+					{header}
+					<IconButton
+						label="Close"
+						class="ui-dialog__close"
+						x-on:click={onClose}
+					>
+						<CloseIcon />
+					</IconButton>
+				</header>
 				{children}
 			</div>
 		</div>
