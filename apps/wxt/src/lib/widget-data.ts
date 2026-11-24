@@ -66,6 +66,8 @@ function createWidgetData() {
 	return {
 		state: createInitialState(),
 		nowMs: Date.now(),
+		/** Width of the page window; `x-resize.document` on the widget keeps it current. */
+		windowWidth: window.innerWidth,
 		/** The pose on show; replaced only when it changes, so the markup of an animation is not put in again. */
 		shownPose: null as ShownPose | null,
 
@@ -124,11 +126,14 @@ function createWidgetData() {
 		get secondsLeft() {
 			return secondsLeft(this.state, this.nowMs);
 		},
+		resizeWindow(width: number) {
+			this.windowWidth = width;
+		},
 		get widgetClass() {
 			return widgetClassOf(this.state.look);
 		},
 		get betaClass() {
-			return betaClassOf(this.state.look);
+			return betaClassOf(this.state.look, this.windowWidth);
 		},
 		get betaStyle() {
 			return betaStyleOf(this.state.look);

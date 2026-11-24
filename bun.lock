@@ -53,9 +53,10 @@
     },
     "apps/wxt": {
       "name": "@repo/wxt",
-      "version": "0.0.0",
+      "version": "0.1.4",
       "dependencies": {
         "@alpinejs/csp": "^3.17.5",
+        "@alpinejs/resize": "^3.17.5",
         "@kitajs/html": "^4.2.13",
         "@repo/protocol": "workspace:*",
         "@repo/reactions": "workspace:*",
@@ -126,6 +127,8 @@
     "@aklinker1/zero-zip": ["@aklinker1/zero-zip@1.0.1", "", {}, "sha512-07a596Bd1QO0bi3tIyt2xruq6vKk7hCUt9enHBwggvipB0iiycoJ9/CqzN6UFawaKbOi6NBfMlUxUXzIOZ7Dsg=="],
 
     "@alpinejs/csp": ["@alpinejs/csp@3.17.5", "", { "dependencies": { "@vue/reactivity": "~3.5.40" } }, "sha512-7e5lYgzJJL2eZ7esnx+E7wtxws+VDs9em9ztttZ+AQAYEng2bABHFp2SUga0wt84RyfL7hc6B+S/RGglXsPf6w=="],
+
+    "@alpinejs/resize": ["@alpinejs/resize@3.17.5", "", {}, "sha512-8Yp52/oeQRHuXwCPjxX4dvP0wfhtcZsfc4Ci6DPRw7ZzyljijpxiJYG5PKfQ0C249D8fNR8B/7xzYHxVgrc13w=="],
 
     "@babel/code-frame": ["@babel/code-frame@7.29.7", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.29.7", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, "sha512-Aup7aUOfpbAUg2ROOJN6Iw5f9DMBlzu0mIkm/malLQFN/YQgO48wCj0Kxa3sEHJvPVFg7siR+qRInwXd2qhQKw=="],
 

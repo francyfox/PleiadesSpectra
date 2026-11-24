@@ -37,14 +37,14 @@ export interface AskOptions {
 	labels?: Partial<Record<Gesture, string>>;
 	/** Where the widget stands: a named place, or distances in pixels from the edges of the window. Defaults to "bottom-right". */
 	position?: WidgetPosition;
-	/** "small" (120 px), "medium" (180 px, default), "large" (260 px), or the width of Beta in pixels (60–600). */
+	/** "small" (120 px), "medium" (180 px), "large" (260 px), or the width of Beta in pixels (60–600). */
 	size?: WidgetSize;
 }
 
 export interface ShowOptions {
 	/** Where Beta stands: a named place, or distances in pixels from the edges of the window. Defaults to the widget's own place. */
 	position?: WidgetPosition;
-	/** "small" (120 px), "medium" (180 px), "large" (260 px), or the width of Beta in pixels (60–600). Defaults to the widget's own size. */
+	/** "small" (120 px), "medium" (180 px), "large" (260 px), or the width of Beta in pixels (60–600). Without it Beta takes the size of the window: small on a phone (under 640 px), medium on a tablet (under 1024 px), large on a desktop. */
 	size?: WidgetSize;
 }
 

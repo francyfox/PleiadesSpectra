@@ -89,6 +89,9 @@ body {
 	right: 8px;
 	z-index: 1;
 	font-variant-numeric: tabular-nums;
+	background: var(--ui-border);
+	color: var(--ui-font);
+	font-size: 14px;
 }
 
 .popup__mask {

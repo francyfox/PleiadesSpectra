@@ -8,7 +8,12 @@ import {
 } from "./beta-pose";
 import { type Emotion, type EmotionTracker, trackExpression } from "./emotion";
 import type { AskOption, WidgetMessage } from "./messages";
-import { DEFAULT_PLACE, defaultLook, type WidgetLook } from "./widget-layout";
+import {
+	AUTO_SIZE,
+	DEFAULT_PLACE,
+	defaultLook,
+	type WidgetLook,
+} from "./widget-layout";
 
 export type Phase =
 	| "idle"
@@ -127,10 +132,10 @@ const NO_SIGNAL_TEXT = "no signal";
 /** Samples come every second or so once the camera runs; this long without one means the camera is not running. */
 export const NO_SIGNAL_AFTER_MS = 8000;
 
-/** Where Beta stands when only the camera of scripts brings her: small, in the usual corner. */
+/** Where Beta stands when only the camera of scripts brings her: in the usual corner, in the size of the window. */
 export const presenceLook: WidgetLook = {
 	position: DEFAULT_PLACE,
-	size: "small",
+	size: AUTO_SIZE,
 };
 
 /** What stays of the state when a question ends or is replaced: the toast, the presence and the show of a measurement. */

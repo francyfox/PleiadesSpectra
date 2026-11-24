@@ -223,11 +223,11 @@ describe("presence of always scripts", () => {
 		plugins,
 	});
 
-	test("Beta comes with the scripts, small and in the usual corner, and goes when they go", () => {
+	test("Beta comes with the scripts, in the size of the window and in the usual corner, and goes when they go", () => {
 		const there = apply([[presence(["scroll"]), 0]]);
 		expect(isVisible(there)).toBe(true);
 		expect(isQuestionVisible(there)).toBe(false);
-		expect(there.look).toEqual({ position: "bottom-right", size: "small" });
+		expect(there.look).toEqual({ position: "bottom-right", size: "auto" });
 		expect(cameraBadgeTextOf(there)).toBe("scroll");
 		expect(isPausable(there)).toBe(true);
 
@@ -240,7 +240,7 @@ describe("presence of always scripts", () => {
 		expect(cameraBadgeTextOf(state)).toBe("2 scripts");
 	});
 
-	test("a question takes the look and ends, and Beta stays small for the scripts", () => {
+	test("a question takes the look and ends, and Beta stays in the size of the window for the scripts", () => {
 		const ask: WidgetMessage = {
 			type: "widget/ask",
 			pluginName: "rate",
@@ -258,7 +258,7 @@ describe("presence of always scripts", () => {
 
 		const after = applyMessage(asking, { type: "widget/hide" }, 2);
 		expect(isVisible(after)).toBe(true);
-		expect(after.look.size).toBe("small");
+		expect(after.look.size).toBe("auto");
 	});
 
 	test("after a question without presence Beta is gone", () => {
@@ -286,7 +286,7 @@ describe("presence of always scripts", () => {
 
 		const hidden = applyMessage(shown, { type: "widget/hide-vital" }, 2);
 		expect(isVisible(hidden)).toBe(true);
-		expect(hidden.look.size).toBe("small");
+		expect(hidden.look.size).toBe("auto");
 	});
 
 	test("a pose and the face follow the camera of the scripts without a question", () => {

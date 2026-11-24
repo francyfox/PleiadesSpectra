@@ -15,6 +15,7 @@ import { TrashIcon } from "@repo/ui/trash-icon";
 import { AiLogos } from "@/components/AiLogos";
 import { CopyField } from "@/components/CopyField";
 import { HelpDialog } from "@/components/help/help";
+import { chipLineResize } from "@/lib/chip-line.directive";
 
 /** Event modifiers are not valid JSX attribute names, so they go in through a spread. */
 const dropEvents = {
@@ -101,7 +102,7 @@ function PluginRow() {
 						Enabled
 					</Switch>
 				</div>
-				<div class="plugin__chips" x-chip-line="">
+				<div class="plugin__chips" {...chipLineResize}>
 					<Chip
 						x-bind:data-tone="plugin.cameraTone"
 						x-text="plugin.cameraText"
@@ -185,7 +186,7 @@ function InstallDialog() {
 				<p>
 					Author: <span x-text="previewAuthor" />
 				</p>
-				<div class="plugin__chips" x-chip-line="">
+				<div class="plugin__chips" {...chipLineResize}>
 					<Chip
 						x-bind:data-tone="previewCameraTone"
 						x-text="previewCameraText"

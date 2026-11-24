@@ -3,6 +3,15 @@ import { visibleChipCount } from "./chip-line";
 
 const MORE_CLASS = "plugin__chips-more";
 
+/** Sent by `x-resize` on the row (see `chipLineResize`) when its width changes. */
+const RESIZED_EVENT = "chip-line:resized";
+
+/** Attributes of a row that is fitted again when its width changes. */
+export const chipLineResize = {
+	"x-chip-line": "",
+	"x-resize": `$dispatch('${RESIZED_EVENT}')`,
+};
+
 function chipsOf(row: HTMLElement): HTMLElement[] {
 	return Array.from(
 		row.querySelectorAll<HTMLElement>(`:scope > .ui-chip:not(.${MORE_CLASS})`),
@@ -49,7 +58,8 @@ function fitRow(row: HTMLElement, more: HTMLElement): void {
 
 /**
  * `x-chip-line` on a row of chips: one line, and a `+N` chip at the end when some do not fit. The row is fitted again
- * when its width or its chips change (the chips come from `x-for`, so they appear after the row does).
+ * when `x-resize` reports its width (spread `chipLineResize` to get both) or its chips change (the chips come from
+ * `x-for`, so they appear after the row does).
  */
 export function registerChipLineDirective(): void {
 	Alpine.directive("chip-line", (el, _value, { cleanup }) => {
@@ -61,16 +71,15 @@ export function registerChipLineDirective(): void {
 			frame = requestAnimationFrame(() => fitRow(row, more));
 		};
 
-		const resizes = new ResizeObserver(schedule);
 		const changes = new MutationObserver(schedule);
-		resizes.observe(row);
 		changes.observe(row, { childList: true });
+		row.addEventListener(RESIZED_EVENT, schedule);
 		schedule();
 
 		cleanup(() => {
 			cancelAnimationFrame(frame);
-			resizes.disconnect();
 			changes.disconnect();
+			row.removeEventListener(RESIZED_EVENT, schedule);
 		});
 	});
 }

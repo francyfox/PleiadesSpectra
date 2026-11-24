@@ -6,6 +6,10 @@ const escapeTurnsCameraOff = {
 	"x-on:keydown.escape.window": "turnOffCamera",
 };
 
+const followsWindowWidth = {
+	"x-resize.document": "resizeWindow($width)",
+};
+
 /** Esc turns the camera off from anywhere on the page. */
 export function Widget() {
 	return (
@@ -14,6 +18,7 @@ export function Widget() {
 			x-bind:class="widgetClass"
 			x-data="widget"
 			{...escapeTurnsCameraOff}
+			{...followsWindowWidth}
 		>
 			<Beta />
 			<HintPopup />

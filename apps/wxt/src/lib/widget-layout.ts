@@ -7,7 +7,13 @@ import type {
 } from "@repo/protocol";
 
 export const DEFAULT_PLACE: WidgetPlace = "bottom-right";
-export const DEFAULT_SIZE: WidgetSizeName = "medium";
+
+/** Window widths where Beta changes her size: a phone is narrower than the first, a tablet than the second. */
+export const TABLET_MIN_WIDTH_PX = 640;
+export const DESKTOP_MIN_WIDTH_PX = 1024;
+
+/** Size of a look that names none: Beta takes the size of the window. */
+export const AUTO_SIZE = "auto";
 
 /** Margin from the edges of the window when a side is not given exactly. */
 const EDGE_MARGIN_PX = 16;
@@ -17,13 +23,20 @@ export type Edge = "top" | "bottom";
 
 export interface WidgetLook {
 	position: WidgetPosition;
-	size: WidgetSize;
+	size: WidgetSize | typeof AUTO_SIZE;
 }
 
 export const defaultLook: WidgetLook = {
 	position: DEFAULT_PLACE,
-	size: DEFAULT_SIZE,
+	size: AUTO_SIZE,
 };
+
+/** Small on a phone, medium on a tablet, large on a desktop. */
+export function sizeForWidth(windowWidth: number): WidgetSizeName {
+	if (windowWidth < TABLET_MIN_WIDTH_PX) return "small";
+	if (windowWidth < DESKTOP_MIN_WIDTH_PX) return "medium";
+	return "large";
+}
 
 function isOffset(position: WidgetPosition): position is WidgetOffset {
 	return typeof position === "object";
@@ -63,9 +76,16 @@ function sizeClassOf(size: WidgetSize): string {
 	return typeof size === "number" ? "beta--custom" : `beta--${size}`;
 }
 
-export function betaClassOf(look: WidgetLook): string {
+function resolveSize(look: WidgetLook, windowWidth: number): WidgetSize {
+	return look.size === AUTO_SIZE ? sizeForWidth(windowWidth) : look.size;
+}
+
+export function betaClassOf(
+	look: WidgetLook,
+	windowWidth = DESKTOP_MIN_WIDTH_PX,
+): string {
 	const flipped = isFlipped(look.position) ? " beta--flipped" : "";
-	return `beta ${placeClassOf(look.position)} ${sizeClassOf(look.size)}${flipped}`;
+	return `beta ${placeClassOf(look.position)} ${sizeClassOf(resolveSize(look, windowWidth))}${flipped}`;
 }
 
 function pixels(distance: number | undefined): string {

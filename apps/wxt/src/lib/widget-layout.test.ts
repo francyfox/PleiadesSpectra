@@ -11,14 +11,15 @@ import {
 	edgeOf,
 	isFlipped,
 	sideOf,
+	sizeForWidth,
 	widgetClassOf,
 } from "./widget-layout";
 import { applyMessage, createInitialState } from "./widget-state";
 
 describe("where Beta stands", () => {
-	test("by default she is at the bottom right, medium and not turned around", () => {
+	test("by default she is at the bottom right, large on a desktop and not turned around", () => {
 		expect(betaClassOf(defaultLook)).toBe(
-			"beta beta--bottom-right beta--medium",
+			"beta beta--bottom-right beta--large",
 		);
 		expect(betaStyleOf(defaultLook)).toBe("");
 		expect(isFlipped(defaultLook.position)).toBe(false);
@@ -117,6 +118,21 @@ describe("a question brings its own place", () => {
 	test("a question without a place uses the default", () => {
 		expect(applyMessage(createInitialState(), ask, 0).look).toEqual(
 			defaultLook,
+		);
+	});
+});
+
+describe("the size of Beta follows the window", () => {
+	test("a phone gets small, a tablet medium, a desktop large", () => {
+		expect(sizeForWidth(390)).toBe("small");
+		expect(sizeForWidth(768)).toBe("medium");
+		expect(sizeForWidth(1440)).toBe("large");
+	});
+
+	test("a look without a size takes the size of the window, a named size stays", () => {
+		expect(betaClassOf(defaultLook, 390)).toContain("beta--small");
+		expect(betaClassOf({ ...defaultLook, size: "medium" }, 390)).toContain(
+			"beta--medium",
 		);
 	});
 });

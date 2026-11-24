@@ -2,6 +2,9 @@
 // which the regular alpinejs build uses. Directive expressions must therefore stay
 // simple (property access, method calls); logic lives in Alpine.data components.
 import Alpine from "@alpinejs/csp";
+import resize from "@alpinejs/resize";
+
+Alpine.plugin(resize);
 
 export { Alpine };
 
