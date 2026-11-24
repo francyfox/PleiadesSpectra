@@ -8,6 +8,8 @@ export interface AlwaysCameraDeps {
 	/** Whether the tab in front is a page of an enabled `@camera always` script and is not paused. */
 	isHoldWanted(): Promise<boolean>;
 	forwardGesture(gesture: string, confidence: number): void;
+	/** Advice from SDK validation for the page in front ("Hold still"); an empty hint means everything is fine. */
+	forwardHint(code: number, hint: string): void;
 }
 
 export interface AlwaysCamera {
@@ -45,8 +47,11 @@ export function createAlwaysCamera(deps: AlwaysCameraDeps): AlwaysCamera {
 			}),
 		handleCameraEvent(event) {
 			if (event.kind === "failed" || event.kind === "lost") held = false;
-			if (event.kind === "server" && event.message.type === "gesture" && held)
+			if (event.kind !== "server" || !held) return;
+			if (event.message.type === "gesture")
 				deps.forwardGesture(event.message.gesture, event.message.confidence);
+			else if (event.message.type === "validation")
+				deps.forwardHint(event.message.code, event.message.hint);
 		},
 	};
 }

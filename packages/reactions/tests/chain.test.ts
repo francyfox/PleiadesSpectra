@@ -937,7 +937,7 @@ describe("ctx.show and ctx.hide", () => {
 			.reaction("nested")
 			.onEvent(".buy", "click", (ctx) => {
 				ctx.onEvent(harness.domWindow, "keydown", (inner) =>
-					inner.show("breathing"),
+					inner.show("pulse"),
 				);
 			});
 		await tick();

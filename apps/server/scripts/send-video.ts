@@ -1,7 +1,7 @@
 /**
  * Pushes video to the server's `/ws` like the extension does and prints what comes back.
  *
- *   bun scripts/send-video.ts [camera|testsrc|<video file>] [--seconds 15] [--debug]
+ *   bun scripts/send-video.ts [camera|testsrc|<video file>] [--seconds 15] [--debug] [--signals pulse] [--url ws://localhost:3001/ws]
  */
 import {
 	FRAME_HEADER_BYTES,
@@ -130,8 +130,7 @@ async function pumpFrames(
 function waitForOpen(socket: WebSocket): Promise<void> {
 	return new Promise((resolve, reject) => {
 		socket.onopen = () => resolve();
-		socket.onerror = () =>
-			reject(new Error(`Cannot connect to ${SERVER_WS_URL}`));
+		socket.onerror = () => reject(new Error("Cannot connect to the server"));
 	});
 }
 
@@ -143,7 +142,8 @@ async function main() {
 	const seconds = Number(argumentValue("--seconds") ?? DEFAULT_SECONDS);
 	const report = createReport();
 
-	const socket = new WebSocket(SERVER_WS_URL);
+	const serverUrl = argumentValue("--url") ?? SERVER_WS_URL;
+	const socket = new WebSocket(serverUrl);
 	socket.onmessage = (event) =>
 		report.record(JSON.parse(String(event.data)) as ServerMessage);
 	await waitForOpen(socket);
@@ -157,6 +157,7 @@ async function main() {
 			width: WIDTH,
 			height: HEIGHT,
 			debug: process.argv.includes("--debug"),
+			signals: argumentValue("--signals")?.split(","),
 		}),
 	);
 

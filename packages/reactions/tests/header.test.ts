@@ -80,7 +80,7 @@ describe("parseHeader", () => {
 		expect(result.ok).toBe(false);
 		if (!result.ok) {
 			expect(result.error).toContain('"gaze"');
-			expect(result.error).toContain("breathing");
+			expect(result.error).toContain("pulse");
 		}
 	});
 

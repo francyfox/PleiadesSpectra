@@ -1,6 +1,5 @@
 import type { VitalName } from "@repo/protocol";
 import {
-	BREATHING_POSE_MS,
 	GESTURE_POSE_MS,
 	nextShakeIsMirrored,
 	type PoseName,
@@ -37,7 +36,6 @@ export interface WidgetState {
 	presence: string[];
 	tracker: EmotionTracker;
 	gesturePose: GesturePose | null;
-	breathing: Breathing | null;
 	pulse: Pulse | null;
 	/** Which side the last `shake` turned to, so the next one turns to the other. */
 	isShakeMirrored: boolean;
@@ -61,12 +59,6 @@ export interface GesturePose {
 	untilMs: number;
 	/** Turned the other way (the turning head of `shake` goes to both sides). */
 	isMirrored: boolean;
-}
-
-export interface Breathing {
-	/** Breaths per minute. */
-	rate: number;
-	untilMs: number;
 }
 
 export interface Pulse {
@@ -120,7 +112,6 @@ export function createInitialState(): WidgetState {
 		presence: [],
 		tracker: { emotion: "neutral", changedAt: 0 },
 		gesturePose: null,
-		breathing: null,
 		pulse: null,
 		isShakeMirrored: false,
 		look: defaultLook,
@@ -157,7 +148,6 @@ function keepAcrossQuestion(state: WidgetState): Partial<WidgetState> {
 		shownLook,
 		look: shownLook,
 		pulse: state.pulse,
-		breathing: state.breathing,
 	};
 }
 
@@ -194,11 +184,6 @@ export function applyMessage(
 			};
 		case "widget/gesture":
 			return applyGesture(state, message.gesture, nowMs);
-		case "widget/breathing":
-			return {
-				...state,
-				breathing: { rate: message.rate, untilMs: nowMs + BREATHING_POSE_MS },
-			};
 		case "widget/pulse":
 			return {
 				...state,
@@ -269,7 +254,6 @@ function showVital(
 		shownAtMs: nowMs,
 		shownLook,
 		pulse: message.vital === state.shownVital ? state.pulse : null,
-		breathing: message.vital === state.shownVital ? state.breathing : null,
 		look: state.phase === "idle" ? shownLook : state.look,
 	};
 }
@@ -291,31 +275,21 @@ function applyGesture(
 }
 
 /**
- * A gesture pose wins; otherwise Beta shows the body signal that was measured last, the pinwheel or the heart.
- * While a script shows a measurement, only that one counts: the pulse never turns into a pinwheel and the other way round.
+ * A gesture pose wins; otherwise Beta shows the heart while pulse samples keep coming, and the pinwheel (the loader)
+ * while a shown pulse waits for its first sample, or for the next one after the last one has gone old.
  */
 export function poseOf(state: WidgetState, nowMs: number): ShownPose | null {
-	const { gesturePose, shownVital } = state;
-	const breathing = shownVital === "pulse" ? null : state.breathing;
-	const pulse = shownVital === "breathing" ? null : state.pulse;
+	const { gesturePose, pulse } = state;
 	if (gesturePose && nowMs < gesturePose.untilMs)
 		return { name: gesturePose.name, isMirrored: gesturePose.isMirrored };
-
-	const bodySignals: Array<{ name: PoseName; untilMs: number }> = [];
-	if (breathing && nowMs < breathing.untilMs)
-		bodySignals.push({ name: "blow", untilMs: breathing.untilMs });
 	if (pulse && nowMs < pulse.untilMs)
-		bodySignals.push({ name: "heart", untilMs: pulse.untilMs });
-	const latest = bodySignals.sort((a, b) => b.untilMs - a.untilMs)[0];
-	return latest ? { name: latest.name, isMirrored: false } : null;
+		return { name: "heart", isMirrored: false };
+	if (isMeasuring(state, nowMs)) return { name: "blow", isMirrored: false };
+	return null;
 }
 
 export function pulseOf(state: WidgetState): Pulse | null {
 	return state.pulse;
-}
-
-export function breathingRateOf(state: WidgetState): number | undefined {
-	return state.breathing?.rate;
 }
 
 export function emotionOf(state: WidgetState): Emotion {
@@ -341,8 +315,7 @@ export function isQuestionVisible(state: WidgetState): boolean {
 /** True while a measurement is shown without a question and no sample of it has come yet (or the last one is old). */
 export function isMeasuring(state: WidgetState, nowMs: number): boolean {
 	if (state.phase !== "idle" || state.shownVital === null) return false;
-	const sample = state.shownVital === "pulse" ? state.pulse : state.breathing;
-	return sample === null || nowMs >= sample.untilMs;
+	return state.pulse === null || nowMs >= state.pulse.untilMs;
 }
 
 export function statusTextOf(state: WidgetState, nowMs: number): string {

@@ -22,8 +22,6 @@ export type WidgetMessage =
 	| { type: "widget/expression"; scores: ExpressionScores }
 	/** A gesture the camera saw while the widget is open: Beta may strike a pose. */
 	| { type: "widget/gesture"; gesture: string }
-	/** The breathing rate in breaths per minute: Beta spins a pinwheel in time with it. */
-	| { type: "widget/breathing"; rate: number }
 	/** The heart rate in beats per minute; `stable` is the SDK's verdict. Beta shows a beating heart and the number. */
 	| { type: "widget/pulse"; bpm: number; stable: boolean }
 	| { type: "widget/accepted"; value: string }
@@ -60,7 +58,6 @@ const WIDGET_MESSAGE_TYPES: ReadonlySet<string> = new Set<
 	"widget/listening",
 	"widget/expression",
 	"widget/gesture",
-	"widget/breathing",
 	"widget/pulse",
 	"widget/accepted",
 	"widget/timeout",

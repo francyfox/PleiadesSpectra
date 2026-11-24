@@ -46,7 +46,7 @@ export const startMessageSchema: JsonSchema = {
 			uniqueItems: true,
 			items: { type: "string", enum: [...signalNames] },
 			description:
-				"Signals to measure and send as `signal` messages. Without it none are sent (gestures and `expression` messages always are). `pulse` and `breathing` also switch the SDK's cardio and breathing metrics on; they are off otherwise. An unknown name makes the whole message malformed.",
+				"Signals to measure and send as `signal` messages. Without it none are sent (gestures and `expression` messages always are). `pulse` also switches the SDK's cardio metrics on; they are off otherwise. An unknown name makes the whole message malformed.",
 			examples: [["blink", "pose"]],
 		},
 	},
@@ -157,7 +157,7 @@ export const serverMessageSchemas: Record<string, JsonSchema> = {
 	signal: {
 		type: "object",
 		description:
-			"One measurement of a signal requested in `start.signals`. `at` is milliseconds since the Unix epoch: the SDK's own timestamp for pulse and breathing (and blink when the SDK gives one), server time otherwise.",
+			"One measurement of a signal requested in `start.signals`. `at` is milliseconds since the Unix epoch: the SDK's own timestamp for pulse (and blink when the SDK gives one), server time otherwise.",
 		required: ["type", "sample"],
 		properties: {
 			type: { type: "string", const: "signal" },
@@ -169,7 +169,7 @@ export const serverMessageSchemas: Record<string, JsonSchema> = {
 					value: {
 						type: "object",
 						description:
-							"blink: { detected }. pose: { yaw, pitch }. expression: scores 0-100 per expression. pulse: { bpm, confidence, stable }. breathing: { rate, confidence, stable }.",
+							"blink: { detected }. pose: { yaw, pitch }. expression: scores 0-100 per expression. pulse: { bpm, confidence, stable }.",
 					},
 					at: { type: "integer" },
 				},
@@ -303,17 +303,6 @@ export const serverMessageExamples = {
 				signal: "pulse",
 				value: { bpm: 72.5, confidence: 83, stable: true },
 				at: 1763800000500,
-			},
-		},
-	},
-	signalBreathing: {
-		summary: "Breathing signal (not a medical reading)",
-		value: {
-			type: "signal",
-			sample: {
-				signal: "breathing",
-				value: { rate: 14.2, confidence: 61, stable: true },
-				at: 1763800000700,
 			},
 		},
 	},

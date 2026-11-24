@@ -83,7 +83,7 @@ export function renderIndex(articles: Article[]): string {
     </article>`,
 		)
 		.join("\n    ");
-	const demos = `<p class="demos"><a href="/sleep">Sleep screen (heart rate demo)</a> · <a href="/breathe">Breathe screen (breathing demo)</a></p>`;
+	const demos = `<p class="demos"><a href="/sleep">Sleep screen (heart rate demo)</a></p>`;
 	return layout(
 		"Demo blog",
 		`<h1>Latest posts</h1>\n    ${items}\n    ${demos}`,

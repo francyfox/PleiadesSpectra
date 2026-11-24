@@ -69,13 +69,16 @@ function createFakeWorker(startsWith: WorkerOutput = { type: "started" }) {
 let nextWorkers: FakeWorker[] = [];
 const server = new Elysia()
 	.use(
-		createStreamRoutes({
-			createWorker: () => {
-				const worker = nextWorkers.shift();
-				if (!worker) throw new Error("test did not prepare a worker");
-				return worker;
+		createStreamRoutes(
+			{
+				createWorker: () => {
+					const worker = nextWorkers.shift();
+					if (!worker) throw new Error("test did not prepare a worker");
+					return worker;
+				},
 			},
-		}),
+			() => {},
+		),
 	)
 	.listen(0);
 

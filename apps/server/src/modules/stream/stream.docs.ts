@@ -79,13 +79,12 @@ const SIGNALS = `
 | \`pose\` | \`{ yaw, pitch }\` | Computed from landmarks, relative to the rest pose, in eye distances; yaw grows to the image right, pitch downward | At most 15 per second, after the rest pose is set (first 30 poses, keep the head still) |
 | \`expression\` | scores 0-100 per expression | \`face.expression\` | At most every 100 ms |
 | \`pulse\` | \`{ bpm, confidence, stable }\` | \`cardio.pulseRate\`, newest sample | When the SDK gives a new timestamp |
-| \`breathing\` | \`{ rate, confidence, stable }\` | \`breathing.rate\`, newest sample | When the SDK gives a new timestamp |
 
-\`at\` is milliseconds since the Unix epoch. For \`pulse\` and \`breathing\` it is the SDK's timestamp (microseconds divided by 1000); for \`blink\` too when the SDK provides one; for \`pose\` and \`expression\` it is server time.
+\`at\` is milliseconds since the Unix epoch. For \`pulse\` it is the SDK's timestamp (microseconds divided by 1000); for \`blink\` too when the SDK provides one; for \`pose\` and \`expression\` it is server time.
 
-**Metrics are opt-in.** Without \`pulse\` the SDK session does not request the cardio metric (PULSE_RATE), without \`breathing\` not the breathing metric (BREATHING_RATE); only face metrics are always on. The unavailable metrics (amplitude, apnea, baseline, ...) are never requested, as that fails \`start()\`.
+**Metrics are opt-in.** Without \`pulse\` the SDK session does not request the cardio metric (PULSE_RATE), only face metrics are always on. The unavailable metrics (amplitude, apnea, baseline, ...) are never requested, as that fails \`start()\`.
 
-**Caveats.** \`blink\` is not verified against real blinks (another project's live test got none). \`pulse\` and \`breathing\` are not medical readings and must not be used for diagnosis, treatment or health advice; \`stable\` is the SDK's own verdict (pulse: confidence of at least 40, breathing: 45), and the first values take time to appear (not measured here). Pulse and breathing are physiological data: ask for them only when needed, and they go only to the client that requested them.
+**Caveats.** \`blink\` is not verified against real blinks (another project's live test got none). \`pulse\` is not a medical reading and must not be used for diagnosis, treatment or health advice; \`stable\` is the SDK's own verdict (pulse: confidence of at least 40), and the first value takes about 10-13 s after the face is found (the SDK's pulse window is 12 s; measured on recorded video). The pulse is physiological data: ask for it only when needed, and it goes only to the client that requested it. The SDK asks for a face that is not too big in the frame: a person who sits close gets \`validation\` advice about the chest and no pulse.
 `;
 
 const ERRORS = `
@@ -114,7 +113,7 @@ const CONSENT_AND_DATA = `
 
 - **Consent.** The server has no consent step of its own. The camera is opened by the extension through the browser's camera permission prompt. The server receives frames only after the client sends \`start\`, and stops when it sends \`stop\` or disconnects. Turn the camera off and send \`stop\` as soon as the user withdraws consent.
 - **What is kept.** Nothing is written to disk and there is no database. Frame pixels exist only in memory: they are handed to the SDK worker and not copied anywhere else by this module. Per-connection state (frame size, gesture detector state, the neutral head pose) lives in memory and is discarded on \`stop\` or close. Frames and metrics are never logged by this module.
-- **What is sent back.** Only to the same client: gestures, expression scores, the signals it requested (including pulse and breathing), validation hints, errors and, if the client asked with \`debug: true\`, the raw metrics.
+- **What is sent back.** Only to the same client: gestures, expression scores, the signals it requested (including pulse), validation hints, errors and, if the client asked with \`debug: true\`, the raw metrics.
 - **Telemetry.** Off by default: the server starts the SDK with telemetry and accumulated output switched off (the SDK itself defaults to telemetry on). Set \`SMARTSPECTRA_TELEMETRY=true\` in the server's \`.env\` to let the SDK send session summaries and readiness reports; per the SmartSpectra documentation they can contain free text, paths and platform context, and no raw frames or measured vitals. The SDK also authenticates with the API key, so it may contact SmartSpectra services either way (see the SmartSpectra documentation).
 - **Network.** Loopback only (127.0.0.1).
 `;

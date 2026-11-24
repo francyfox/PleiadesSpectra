@@ -36,8 +36,11 @@ export function chooseHint(brightness: number, frameRate: number): string {
 }
 
 export interface QualityMonitor {
-	/** Counts the frame; `nowMs` is the time it arrived. */
-	push(rgba: Uint8ClampedArray, nowMs: number): void;
+	/**
+	 * Counts the frame; `nowMs` is the time it arrived. `visibleFraction` is the share of the frame width and height
+	 * that the picture takes (the rest is black margin), so the margins do not pass for a dark room.
+	 */
+	push(rgba: Uint8ClampedArray, nowMs: number, visibleFraction?: number): void;
 }
 
 /**
@@ -73,12 +76,15 @@ export function createQualityMonitor(
 	};
 
 	return {
-		push(rgba, nowMs) {
+		push(rgba, nowMs, visibleFraction = 1) {
 			if (windowStart === null) startWindow(nowMs);
 			frames += 1;
 			if (nowMs - lastSampleAt >= BRIGHTNESS_SAMPLE_EVERY_MS) {
 				lastSampleAt = nowMs;
-				brightnessSum += measureBrightness(rgba);
+				brightnessSum += Math.min(
+					255,
+					measureBrightness(rgba) / (visibleFraction * visibleFraction),
+				);
 				brightnessSamples += 1;
 			}
 			const elapsed = nowMs - (windowStart ?? nowMs);

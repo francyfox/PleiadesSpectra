@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 import type { WidgetMessage } from "./messages";
 import {
 	applyMessage,
-	breathingRateOf,
 	cameraBadgeTextOf,
 	createInitialState,
 	emotionOf,
@@ -55,17 +54,15 @@ describe("poses", () => {
 		expect(poseOf(third, 4010)?.isMirrored).toBe(true);
 	});
 
-	test("breathing makes Beta spin the pinwheel while samples keep coming", () => {
-		const state = apply([[{ type: "widget/breathing", rate: 14 }, 0]]);
+	test("a shown pulse that waits for its first sample makes Beta spin the pinwheel, the loader", () => {
+		const state = apply([[showVital("pulse"), 0]]);
 
-		expect(poseOf(state, 9000)).toEqual({ name: "blow", isMirrored: false });
-		expect(breathingRateOf(state)).toBe(14);
-		expect(poseOf(state, 10_000)).toBeNull();
+		expect(poseOf(state, 100)).toEqual({ name: "blow", isMirrored: false });
 	});
 
 	test("a gesture pose wins over the pinwheel, and the pinwheel comes back after it", () => {
 		const state = apply([
-			[{ type: "widget/breathing", rate: 14 }, 0],
+			[showVital("pulse"), 0],
 			[gesture("nod"), 1000],
 		]);
 
@@ -81,24 +78,10 @@ describe("poses", () => {
 		expect(poseOf(state, 10_000)).toBeNull();
 	});
 
-	test("when both the pulse and the breathing are measured, the one measured last is shown", () => {
-		const pinwheel = apply([
-			[{ type: "widget/pulse", bpm: 74, stable: true }, 0],
-			[{ type: "widget/breathing", rate: 14 }, 1000],
-		]);
-		const heart = apply(
-			[[{ type: "widget/pulse", bpm: 75, stable: true }, 2000]],
-			pinwheel,
-		);
-
-		expect(poseOf(pinwheel, 1500)?.name).toBe("blow");
-		expect(poseOf(heart, 2500)?.name).toBe("heart");
-	});
-
 	test("closing the widget forgets the poses", () => {
 		const state = apply([
 			[gesture("nod"), 0],
-			[{ type: "widget/breathing", rate: 14 }, 0],
+			[{ type: "widget/pulse", bpm: 74, stable: true }, 0],
 			[{ type: "widget/hide" }, 10],
 		]);
 
@@ -106,10 +89,11 @@ describe("poses", () => {
 	});
 });
 
-const showVital = (
-	vital: "pulse" | "breathing",
-	position?: "top-left",
-): WidgetMessage => ({ type: "widget/show-vital", vital, position });
+const showVital = (vital: "pulse", position?: "top-left"): WidgetMessage => ({
+	type: "widget/show-vital",
+	vital,
+	position,
+});
 
 const askMessage: WidgetMessage = {
 	type: "widget/ask",
@@ -135,11 +119,11 @@ describe("a shown vital without a question", () => {
 		expect(shown.look.position).toBe("top-left");
 	});
 
-	test("until a sample comes Beta says she is measuring, then the pose shows and falls back after the TTL", () => {
+	test("until a sample comes Beta says she is measuring and spins the pinwheel, then the heart shows and the pinwheel comes back after the TTL", () => {
 		const shown = apply([[showVital("pulse"), 0]]);
 		expect(isMeasuring(shown, 100)).toBe(true);
 		expect(statusTextOf(shown, 100)).toBe("measuring…");
-		expect(poseOf(shown, 100)).toBeNull();
+		expect(poseOf(shown, 100)?.name).toBe("blow");
 
 		const sampled = apply(
 			[[{ type: "widget/pulse", bpm: 70, stable: true }, 1000]],
@@ -147,23 +131,8 @@ describe("a shown vital without a question", () => {
 		);
 		expect(isMeasuring(sampled, 2000)).toBe(false);
 		expect(poseOf(sampled, 2000)?.name).toBe("heart");
-		expect(poseOf(sampled, 11_000)).toBeNull();
+		expect(poseOf(sampled, 11_000)?.name).toBe("blow");
 		expect(isMeasuring(sampled, 11_000)).toBe(true);
-	});
-
-	test("the pose is built only from the shown vital", () => {
-		const pulse = apply([
-			[showVital("pulse"), 0],
-			[{ type: "widget/breathing", rate: 12 }, 10],
-		]);
-		expect(poseOf(pulse, 20)).toBeNull();
-
-		const breathing = apply([
-			[showVital("breathing"), 0],
-			[{ type: "widget/pulse", bpm: 70, stable: true }, 10],
-			[{ type: "widget/breathing", rate: 12 }, 20],
-		]);
-		expect(poseOf(breathing, 30)?.name).toBe("blow");
 	});
 
 	test("a gesture still covers the pose for a moment", () => {
@@ -176,14 +145,14 @@ describe("a shown vital without a question", () => {
 		expect(poseOf(state, 1000)?.name).toBe("heart");
 	});
 
-	test("a repeated show replaces the earlier one and drops its samples", () => {
+	test("a repeated show moves Beta and keeps the samples that came", () => {
 		const state = apply([
 			[showVital("pulse"), 0],
 			[{ type: "widget/pulse", bpm: 70, stable: true }, 10],
-			[showVital("breathing", "top-left"), 20],
+			[showVital("pulse", "top-left"), 20],
 		]);
-		expect(state.shownVital).toBe("breathing");
-		expect(pulseOf(state)).toBeNull();
+		expect(state.shownVital).toBe("pulse");
+		expect(pulseOf(state)).toMatchObject({ bpm: 70 });
 		expect(state.look.position).toBe("top-left");
 	});
 });

@@ -34,6 +34,16 @@ describe("camera quality", () => {
 		expect(chooseHint(150, 30)).toBe("");
 	});
 
+	it("does not take the black margins of a shrunk picture for a dark room", () => {
+		const hints: string[] = [];
+		const monitor = createQualityMonitor((hint) => hints.push(hint));
+		const shrunkBrightFrame = frame(150 * 0.5 * 0.5);
+		for (let at = 0; at <= 8000; at += 1000 / 30)
+			monitor.push(shrunkBrightFrame, at, 0.5);
+
+		expect(hints).toEqual([]);
+	});
+
 	it("stays quiet for a bright picture at 30 fps", () => {
 		expect(run(150, 30, 8)).toEqual([]);
 	});

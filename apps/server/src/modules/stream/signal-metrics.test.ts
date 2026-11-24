@@ -20,18 +20,15 @@ test("without a request only the face metrics are enabled", () => {
 	);
 });
 
-test("pulse adds the cardio rate and breathing adds the breathing rate", () => {
+test("pulse adds the cardio rate, and only once however often it is asked for", () => {
 	expect(requestedMetricsFor(["pulse"])).toContain(MetricType.PULSE_RATE);
 	expect(requestedMetricsFor(["pulse"])).not.toContain(
 		MetricType.BREATHING_RATE,
 	);
-	expect(requestedMetricsFor(["breathing"])).toContain(
-		MetricType.BREATHING_RATE,
-	);
-	expect(requestedMetricsFor(["pulse", "breathing", "pulse"])).toHaveLength(6);
+	expect(requestedMetricsFor(["pulse", "pulse"])).toHaveLength(5);
 });
 
 test("unavailable metrics are never requested", () => {
-	const metrics = requestedMetricsFor(["pulse", "breathing"]);
+	const metrics = requestedMetricsFor(["pulse"]);
 	for (const code of UNAVAILABLE) expect(metrics).not.toContain(code);
 });

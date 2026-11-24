@@ -19,12 +19,33 @@ function nowUs(): number {
 	return Math.round(performance.now() * 1000);
 }
 
-function createPixelReader(width: number, height: number) {
+/** The fraction of the frame the picture is drawn with: below 1 it is shrunk into the middle, with black margins. */
+export type ScaleSource = () => number;
+
+function createPixelReader(
+	width: number,
+	height: number,
+	scaleSource: ScaleSource,
+) {
 	const canvas = new OffscreenCanvas(width, height);
 	const context = canvas.getContext("2d", { willReadFrequently: true });
 	if (!context) throw new Error("2D canvas is not available");
 	return (source: CanvasImageSource): Uint8ClampedArray => {
-		context.drawImage(source, 0, 0, width, height);
+		const scale = scaleSource();
+		if (scale >= 1) context.drawImage(source, 0, 0, width, height);
+		else {
+			context.fillStyle = "#000";
+			context.fillRect(0, 0, width, height);
+			const shrunkWidth = width * scale;
+			const shrunkHeight = height * scale;
+			context.drawImage(
+				source,
+				(width - shrunkWidth) / 2,
+				(height - shrunkHeight) / 2,
+				shrunkWidth,
+				shrunkHeight,
+			);
+		}
 		return context.getImageData(0, 0, width, height).data;
 	};
 }
@@ -34,10 +55,15 @@ function loopWithTrackProcessor(
 	camera: CameraStream,
 	Processor: TrackProcessorConstructor,
 	onFrame: FrameHandler,
+	scaleSource: ScaleSource,
 ): () => void {
 	const track = camera.stream.getVideoTracks()[0];
 	if (!track) throw new Error("Camera has no video track");
-	const readPixels = createPixelReader(camera.width, camera.height);
+	const readPixels = createPixelReader(
+		camera.width,
+		camera.height,
+		scaleSource,
+	);
 	const reader = new Processor({ track }).readable.getReader();
 	let running = true;
 
@@ -64,13 +90,18 @@ function loopWithTrackProcessor(
 function loopWithVideoElement(
 	camera: CameraStream,
 	onFrame: FrameHandler,
+	scaleSource: ScaleSource,
 ): () => void {
 	const video = document.createElement("video");
 	video.muted = true;
 	video.playsInline = true;
 	video.srcObject = camera.stream;
 	void video.play();
-	const readPixels = createPixelReader(camera.width, camera.height);
+	const readPixels = createPixelReader(
+		camera.width,
+		camera.height,
+		scaleSource,
+	);
 	let running = true;
 
 	const sample = () => {
@@ -96,11 +127,12 @@ function loopWithVideoElement(
 export function startFrameLoop(
 	camera: CameraStream,
 	onFrame: FrameHandler,
+	scaleSource: ScaleSource = () => 1,
 ): () => void {
 	const Processor = (
 		globalThis as { MediaStreamTrackProcessor?: TrackProcessorConstructor }
 	).MediaStreamTrackProcessor;
 	return Processor
-		? loopWithTrackProcessor(camera, Processor, onFrame)
-		: loopWithVideoElement(camera, onFrame);
+		? loopWithTrackProcessor(camera, Processor, onFrame, scaleSource)
+		: loopWithVideoElement(camera, onFrame, scaleSource);
 }

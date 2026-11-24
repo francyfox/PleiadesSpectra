@@ -7,9 +7,9 @@ import {
 	uninstallPlugin,
 } from "./plugin-helpers";
 
-const PINWHEEL = resolve(
+const HEART_RATE = resolve(
 	import.meta.dirname,
-	"../../../example/scripts/breathing-pinwheel.js",
+	"../../../example/scripts/heart-rate.js",
 );
 const SCROLL = resolve(
 	import.meta.dirname,
@@ -24,7 +24,7 @@ test("a script that reads signals changes nothing for a question that opens the 
 	extension,
 }) => {
 	const rating = await installPlugin(extension, RATING, "Rate our service");
-	await installPlugin(extension, PINWHEEL, "Breathing pinwheel");
+	await installPlugin(extension, HEART_RATE, "Heart rate");
 	try {
 		const blog = await extension.context.newPage();
 		await blog.goto(`${DEMO_URL}/`);
@@ -39,13 +39,13 @@ test("a script that reads signals changes nothing for a question that opens the 
 		await blog.getByRole("button", { name: "5 · Great" }).click();
 		await expect.poll(() => cameraPageUrl(extension)).toBeUndefined();
 
-		await blog.goto(`${DEMO_URL}/breathe`);
+		await blog.goto(`${DEMO_URL}/sleep`);
 		await expect
 			.poll(() => cameraPageUrl(extension), { timeout: 10_000 })
-			.toContain("signals=breathing");
+			.toContain("signals=pulse");
 	} finally {
 		await uninstallPlugin(rating, "Rate our service");
-		await uninstallPlugin(rating, "Breathing pinwheel");
+		await uninstallPlugin(rating, "Heart rate");
 	}
 });
 

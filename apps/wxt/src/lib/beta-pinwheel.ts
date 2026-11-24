@@ -1,5 +1,8 @@
+/** One turn of the pinwheel while a measurement is waited for. */
+export const PINWHEEL_TURN_SECONDS = 1.6;
+
 /**
- * The paper pinwheel that Beta spins with her breath. It is drawn over `blow.webp`, in front of the pursed lips, on a
+ * The paper pinwheel that Beta spins while a measurement is waited for. It is drawn over `blow.webp`, in front of the pursed lips, on a
  * stick that goes down to the right. The vane is flat paper turned a little away from us (squeezed across and
  * skewed), so it reads as a three-quarter view; the light comes from the top left.
  */

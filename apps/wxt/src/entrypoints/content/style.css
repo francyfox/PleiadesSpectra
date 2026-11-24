@@ -174,7 +174,7 @@
 	top: 16px;
 	right: 16px;
 	z-index: 2147483647;
-	max-width: min(320px, calc(100vw - 32px));
+	max-width: min(400px, calc(100vw - 32px));
 }
 
 .widget--left .hint {

@@ -37,13 +37,13 @@ camera → extension → ws://localhost:3001 → server (SmartSpectra SDK) → g
 
 - `apps/wxt`: the browser extension (WXT, Chrome and Firefox).
 - `apps/server`: the local server (Elysia on Bun) that hosts the SDK session. API docs at <http://localhost:3001/docs>.
-- `apps/demo`: demo pages to try the example scripts on (a blog, a black sleep screen, a breathing screen).
+- `apps/demo`: demo pages to try the example scripts on (a blog, a black sleep screen).
 - `packages/reactions`: the script API. `example/scripts`: ready scripts.
 
 ## You need
 
 - A SmartSpectra API key from <https://physiology.presagetech.com/auth/register>.
-- Chrome and a camera (the Firefox version does not work yet). Put your face and upper chest in the frame, evenly lit: pulse and breathing need it.
+- Chrome and a camera (the Firefox version does not work yet). Evenly lit face, sitting still: the pulse needs about 12 s of a steady picture. The extension shrinks the picture for the SDK when you sit close to the camera, so you do not have to move away.
 - Put the key in `apps/server/.env.local`:
 
 ```sh
@@ -114,9 +114,9 @@ reaction("scroll")
 
 - **Install:** popup → **Scripts** → choose the file → read what it asks for → **Install**. Try the ready ones in
   `example/scripts` on the demo pages: `rate-our-service.js` (smile or nod to rate), `scroll-page.js` (head navigation),
-  `heart-rate.js`, `breathing-pinwheel.js`.
+  `heart-rate.js`.
 - **Gestures:** `nod`, `shake`, `tilt-down`, `tilt-up`, `roll-left`, `roll-right`, `smile`, `confused`, `talking`.
-  **Signals** (raw, declared in `@signals`): `blink`, `pose`, `expression`, `pulse`, `breathing`.
+  **Signals** (raw, declared in `@signals`): `blink`, `pose`, `expression`, `pulse`.
 - **With an AI agent:** popup → **Connect to AI**, then ask the agent to write a script for a site. The agent can only
   *propose* it: you see the code, the sites and what it reads from your face, and press Install yourself. Give the
   agent `packages/reactions/prompt.md` and `packages/reactions/reactions.d.ts` (types for `// @ts-check`). Both files are
@@ -130,7 +130,7 @@ reaction("scroll")
 - Video goes only to the server on your own machine, is processed in memory and never saved.
 - SDK telemetry is off by default (`SMARTSPECTRA_TELEMETRY`); the SDK still contacts Presage to check the API key.
 - Scripts get only the gestures and signals they declare. Scripts are page code: install only ones you trust.
-- Not a medical tool. Pulse and breathing are rough estimates from video.
+- Not a medical tool. The pulse is a rough estimate from video.
 
 ## Development
 

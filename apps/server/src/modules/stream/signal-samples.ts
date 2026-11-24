@@ -25,7 +25,6 @@ export interface SignalEmitterState {
 	lastExpressionAtMs: number;
 	lastBlink: boolean | null;
 	lastPulseAtMs: number | null;
-	lastBreathingAtMs: number | null;
 }
 
 export interface EmitterStep {
@@ -44,7 +43,6 @@ export function createSignalEmitterState(
 		lastExpressionAtMs: Number.NEGATIVE_INFINITY,
 		lastBlink: null,
 		lastPulseAtMs: null,
-		lastBreathingAtMs: null,
 	};
 }
 
@@ -139,7 +137,6 @@ interface RateStep {
 
 /** A packet may repeat the previous sample, so a rate is sent only when its SDK timestamp is new. */
 function stepRate(
-	signal: "pulse" | "breathing",
 	measurements: MeasurementLike[] | null | undefined,
 	lastAtMs: number | null,
 	nowMs: number,
@@ -152,10 +149,7 @@ function stepRate(
 	if (at === lastAtMs) return { lastAtMs, sample: null };
 
 	const { value, confidence, stable } = reading;
-	const sample =
-		signal === "pulse"
-			? sampleOf("pulse", { bpm: value, confidence, stable }, at)
-			: sampleOf("breathing", { rate: value, confidence, stable }, at);
+	const sample = sampleOf("pulse", { bpm: value, confidence, stable }, at);
 	return { lastAtMs: at, sample };
 }
 
@@ -165,32 +159,9 @@ function stepPulse(
 	nowMs: number,
 ): EmitterStep {
 	if (!state.requested.has("pulse")) return { state, samples: [] };
-	const step = stepRate(
-		"pulse",
-		metrics.cardio?.pulseRate,
-		state.lastPulseAtMs,
-		nowMs,
-	);
+	const step = stepRate(metrics.cardio?.pulseRate, state.lastPulseAtMs, nowMs);
 	return {
 		state: { ...state, lastPulseAtMs: step.lastAtMs },
-		samples: step.sample ? [step.sample] : [],
-	};
-}
-
-function stepBreathing(
-	state: SignalEmitterState,
-	metrics: MetricsLike,
-	nowMs: number,
-): EmitterStep {
-	if (!state.requested.has("breathing")) return { state, samples: [] };
-	const step = stepRate(
-		"breathing",
-		metrics.breathing?.rate,
-		state.lastBreathingAtMs,
-		nowMs,
-	);
-	return {
-		state: { ...state, lastBreathingAtMs: step.lastAtMs },
 		samples: step.sample ? [step.sample] : [],
 	};
 }
@@ -207,7 +178,6 @@ export function stepSignalEmitter(
 		(current: SignalEmitterState) => stepPose(current, signals, nowMs),
 		(current: SignalEmitterState) => stepExpression(current, signals, nowMs),
 		(current: SignalEmitterState) => stepPulse(current, metrics, nowMs),
-		(current: SignalEmitterState) => stepBreathing(current, metrics, nowMs),
 	];
 
 	let current = state;

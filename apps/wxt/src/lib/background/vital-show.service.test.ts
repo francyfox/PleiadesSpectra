@@ -15,8 +15,8 @@ function setup() {
 	return { sent, service };
 }
 
-const show = (pluginName: string, vital: "pulse" | "breathing" = "pulse") =>
-	({ type: "reaction/show", pluginName, vital }) as const;
+const show = (pluginName: string, position?: "top-left" | "center") =>
+	({ type: "reaction/show", pluginName, vital: "pulse", position }) as const;
 
 describe("reaction/show and reaction/hide messages", () => {
 	test("a show needs a known vital and a script name", () => {
@@ -68,23 +68,24 @@ describe("vital show service", () => {
 
 	test("a repeated show of the same script replaces the earlier one", () => {
 		const { sent, service } = setup();
-		service.show(show("a", "pulse"), 7);
-		service.show(show("a", "breathing"), 7);
+		service.show(show("a", "top-left"), 7);
+		service.show(show("a", "center"), 7);
 		service.hide("a", 7);
 
 		expect(sent.at(-1)?.[1].type).toBe("widget/hide-vital");
-		expect(sent[1]?.[1]).toMatchObject({ vital: "breathing" });
+		expect(sent[1]?.[1]).toMatchObject({ position: "center" });
 	});
 
 	test("when one of two scripts hides, the widget goes back to the other", () => {
 		const { sent, service } = setup();
-		service.show(show("a", "pulse"), 7);
-		service.show(show("b", "breathing"), 7);
+		service.show(show("a", "top-left"), 7);
+		service.show(show("b", "center"), 7);
 		service.hide("b", 7);
 
 		expect(sent.at(-1)?.[1]).toMatchObject({
 			type: "widget/show-vital",
 			vital: "pulse",
+			position: "top-left",
 		});
 	});
 

@@ -107,7 +107,7 @@ describe("expression", () => {
 	});
 });
 
-describe("pulse and breathing", () => {
+describe("pulse", () => {
 	test("pulse takes the newest rate, converts microseconds, and skips repeats", () => {
 		const metrics: MetricsLike = {
 			cardio: {
@@ -133,30 +133,6 @@ describe("pulse and breathing", () => {
 		]);
 	});
 
-	test("breathing maps value to rate; a missing `stable` is false; Long timestamps work", () => {
-		const samples = run(
-			["breathing"],
-			at({
-				breathing: {
-					rate: [
-						{
-							value: 14,
-							confidence: 30,
-							timestamp: { toNumber: () => 3_000_000 },
-						},
-					],
-				},
-			}),
-		);
-		expect(samples).toEqual([
-			{
-				signal: "breathing",
-				value: { rate: 14, confidence: 30, stable: false },
-				at: 3000,
-			},
-		]);
-	});
-
 	test("timestamps that are missing or zero fall back to server time", () => {
 		expect(timestampToMs(undefined)).toBeNull();
 		expect(timestampToMs(0)).toBeNull();
@@ -176,7 +152,6 @@ describe("filtering by the requested signals", () => {
 			landmarks: [{ value: syntheticLandmarks({ yaw: 0, pitch: 0 }) }],
 		},
 		cardio: { pulseRate: [{ value: 70, timestamp: 1_000_000 }] },
-		breathing: { rate: [{ value: 15, timestamp: 1_000_000 }] },
 	};
 
 	test("nothing requested, nothing sent", () => {

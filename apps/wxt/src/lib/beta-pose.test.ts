@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
 	beatSeconds,
-	breathSeconds,
 	nextShakeIsMirrored,
 	POSE_FILE,
 	poseForGesture,
@@ -26,21 +25,6 @@ describe("poses for gestures", () => {
 	test("shake turns to one side and then to the other", () => {
 		expect(nextShakeIsMirrored(false)).toBe(true);
 		expect(nextShakeIsMirrored(true)).toBe(false);
-	});
-});
-
-describe("breath of the pinwheel", () => {
-	test("one breath lasts 60 / rate seconds, kept between 2 and 10 seconds", () => {
-		expect(breathSeconds(12)).toBe(5);
-		expect(breathSeconds(20)).toBe(3);
-		expect(breathSeconds(60)).toBe(2);
-		expect(breathSeconds(3)).toBe(10);
-	});
-
-	test("a missing or odd rate means a calm 12 breaths a minute", () => {
-		expect(breathSeconds(undefined)).toBe(5);
-		expect(breathSeconds(0)).toBe(5);
-		expect(breathSeconds(-4)).toBe(5);
 	});
 });
 

@@ -15,6 +15,7 @@ import {
 	PINWHEEL_SHADOW,
 	PINWHEEL_STICK,
 	PINWHEEL_TILT,
+	PINWHEEL_TURN_SECONDS,
 	pinwheelBladePath,
 	pinwheelFoldPath,
 } from "@/lib/beta-pinwheel";
@@ -141,7 +142,7 @@ function PinwheelStick() {
 	);
 }
 
-/** The blades turn once in one breath, quickly on the breath out and slowly on the breath in. */
+/** The blades turn once in `PINWHEEL_TURN_SECONDS`, quickly and then slowly, like a breath. */
 function PinwheelBlades() {
 	const bladeAngle = 360 / PINWHEEL_BLADE_COUNT;
 	return (
@@ -151,8 +152,7 @@ function PinwheelBlades() {
 				type="rotate"
 				values={PINWHEEL_ROTATE_VALUES}
 				keyTimes={PINWHEEL_ROTATE_KEY_TIMES}
-				dur="5s"
-				x-bind:dur="pinwheelDuration"
+				dur={`${PINWHEEL_TURN_SECONDS}s`}
 				repeatCount="indefinite"
 			/>
 			{Array.from({ length: PINWHEEL_BLADE_COUNT }, (_, index) => (
@@ -188,7 +188,7 @@ function PinwheelPin() {
 	);
 }
 
-/** The paper pinwheel on its stick, turned three quarters to us, and the rate of breathing. */
+/** The paper pinwheel on its stick, turned three quarters to us: Beta waits for a measurement. */
 export function pinwheelMarkup(): string {
 	const { x, y } = PINWHEEL_CENTER;
 	const { scaleX, skewYDegrees } = PINWHEEL_TILT;
@@ -202,7 +202,6 @@ export function pinwheelMarkup(): string {
 				<PinwheelBlades />
 				<PinwheelPin />
 			</g>
-			<VitalLabel text="breathText" style="vitalNumberStyle" unit="br/m" />
 		</>,
 	);
 }

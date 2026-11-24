@@ -23,7 +23,6 @@ const EXPRESSION_ACTION_PREFIX = "expression:";
 const PLACE_ACTION_PREFIX = "place:";
 const SIZE_ACTION_PREFIX = "size:";
 const GESTURE_ACTION_PREFIX = "gesture:";
-const BREATHING_ACTION_PREFIX = "breathing:";
 const PULSE_ACTION_PREFIX = "pulse:";
 const SHOW_VITAL_ACTION_PREFIX = "show-vital:";
 const UNSTABLE_PULSE_ACTION = "pulse-unstable";
@@ -77,11 +76,6 @@ function messageForAction(action: string): WidgetMessage | undefined {
 		return {
 			type: "widget/gesture",
 			gesture: action.slice(GESTURE_ACTION_PREFIX.length),
-		};
-	if (action.startsWith(BREATHING_ACTION_PREFIX))
-		return {
-			type: "widget/breathing",
-			rate: Number(action.slice(BREATHING_ACTION_PREFIX.length)),
 		};
 	if (action.startsWith(SHOW_VITAL_ACTION_PREFIX)) {
 		const vital = action.slice(SHOW_VITAL_ACTION_PREFIX.length);

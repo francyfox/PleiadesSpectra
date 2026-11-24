@@ -2,7 +2,7 @@
  * Shows which expression SmartSpectra reports for still photos.
  * Each photo is repeated as a live 30 fps stream until the first `expression` arrives, or gives up after 5 s.
  *
- *   bun scripts/photo-expression.ts <photo>... [--timeout 5] [--signals pulse,breathing]
+ *   bun scripts/photo-expression.ts <photo>... [--timeout 5] [--signals pulse]
  *
  * `--signals` asks the SDK for the metrics of those signals as well, like a script with `@signals` does, to see
  * whether the expressions still come.

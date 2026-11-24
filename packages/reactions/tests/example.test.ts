@@ -3,10 +3,7 @@ import { GESTURE_EVENT_NAME, SIGNAL_EVENT_NAME } from "@repo/protocol";
 import { Window } from "happy-dom";
 import { createArticles } from "../../../apps/demo/src/blog/articles";
 import { renderIndex } from "../../../apps/demo/src/blog/render";
-import {
-	renderBreatheScreen,
-	renderSleepScreen,
-} from "../../../apps/demo/src/screens/render";
+import { renderSleepScreen } from "../../../apps/demo/src/screens/render";
 import { parseHeader } from "../src/header";
 import { createReactionFactory, type RuntimeEnvironment } from "../src/index";
 
@@ -363,29 +360,7 @@ test("the heart rate example shows the pulse on the demo video and ignores other
 	expect(otherVideo).toEqual([]);
 });
 
-test("the breathing example declares breathing and shows the pinwheel on the breathe screen", async () => {
-	const header = parseHeader(
-		await readExample("scripts/breathing-pinwheel.js"),
-	);
-	expect(header.ok).toBe(true);
-	expect(header.ok && header.header.signals).toEqual(["breathing"]);
-	expect(header.ok && header.header.camera).toBe("always");
-
-	const shown = await runPluginOnPage(
-		"scripts/breathing-pinwheel.js",
-		"http://localhost:4010/breathe",
-		renderBreatheScreen(),
-	);
-	expect(shown).toHaveLength(1);
-	expect(shown[0]).toMatchObject({
-		vital: "breathing",
-		position: "bottom-right",
-		size: "large",
-	});
-});
-
-test("the demo index links to both screens", () => {
+test("the demo index links to the sleep screen", () => {
 	const index = renderIndex(createArticles());
 	expect(index).toContain('href="/sleep"');
-	expect(index).toContain('href="/breathe"');
 });

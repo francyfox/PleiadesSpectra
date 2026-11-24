@@ -50,7 +50,7 @@ test("the heart rate script shows Beta on the black sleep screen without a quest
 	await confirmInstall(plugins, "Heart rate");
 
 	const other = await extension.context.newPage();
-	await other.goto(`${DEMO_URL}/breathe`);
+	await other.goto(`${DEMO_URL}/`);
 	await other.waitForTimeout(1500);
 	await expect(other.locator(".beta")).toBeHidden();
 
@@ -61,21 +61,4 @@ test("the heart rate script shows Beta on the black sleep screen without a quest
 	await expect(sleep.locator(".beta-label")).toHaveText("measuring…");
 	await expect(sleep.getByText("How was our service?")).toBeHidden();
 	await expect(sleep.locator(".beta__face")).toHaveCSS("width", "260px");
-});
-
-test("the breathing script shows Beta on the breathe screen", async ({
-	extension,
-}) => {
-	const plugins = await installPlugin(
-		extension,
-		"breathing-pinwheel.js",
-		"Breathing pinwheel",
-	);
-	await confirmInstall(plugins, "Breathing pinwheel");
-
-	const breathe = await extension.context.newPage();
-	await breathe.goto(`${DEMO_URL}/breathe`);
-
-	await expect(breathe.locator(".beta")).toBeVisible({ timeout: 15_000 });
-	await expect(breathe.locator(".beta-label")).toHaveText("measuring…");
 });

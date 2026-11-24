@@ -1,3 +1,4 @@
+import type { ServerMessage } from "@repo/protocol";
 import { browser } from "wxt/browser";
 import { encodeFrame } from "../server-link/frame";
 import { openServerLink } from "../server-link/server-link";
@@ -13,6 +14,12 @@ import { createQualityMonitor } from "./camera-quality";
 import { openCameraStream } from "./camera-stream";
 import { startFrameLoop } from "./frame-loop";
 import { readRequestedSignals } from "./session-params";
+import {
+	createZoomOut,
+	noZoomOut,
+	restorePoints,
+	type ZoomOut,
+} from "./zoom-out";
 
 interface CameraSession {
 	setMask(enabled: boolean): void;
@@ -41,28 +48,56 @@ function describeServerError(error: unknown): SetupError {
 	return setupError("server", message);
 }
 
+/** The pulse is the only measurement that needs the frame shrunk for a person who sits close to the camera. */
+function zoomOutFor(signals: readonly string[]): ZoomOut {
+	return signals.includes("pulse") ? createZoomOut() : noZoomOut;
+}
+
+/** Tells the zoom what the SDK advises, and puts the face mask back where the whole frame would show it. */
+function toWholeFrame(
+	message: ServerMessage,
+	zoom: ZoomOut,
+	nowMs: number,
+): ServerMessage {
+	if (message.type === "validation") zoom.onValidation(message.code, nowMs);
+	if (message.type !== "mask") return message;
+	const scale = zoom.scaleAt(nowMs);
+	return { ...message, points: restorePoints(message.points, message, scale) };
+}
+
 /** Camera → WebSocket pipeline; frames never leave this page except to the local server. */
 async function startSession(): Promise<CameraSession> {
 	const camera = await openCameraStream().catch((error) => {
 		throw describeCameraError(error);
 	});
 	try {
+		const signals = readRequestedSignals(location.search);
+		const zoom = zoomOutFor(signals);
 		const link = await openServerLink({
 			width: camera.width,
 			height: camera.height,
 			debug: new URLSearchParams(location.search).get("debug") === "1",
-			signals: readRequestedSignals(location.search),
+			signals,
 			mask: new URLSearchParams(location.search).get("mask") === "1",
-			onMessage: (message) => report({ kind: "server", message }),
+			onMessage: (message) =>
+				report({
+					kind: "server",
+					message: toWholeFrame(message, zoom, performance.now()),
+				}),
 			onLost: () => report({ kind: "lost" }),
 		});
 		const quality = createQualityMonitor((hint) =>
 			report({ kind: "quality", hint }),
 		);
-		const stopLoop = startFrameLoop(camera, (rgba, timestampUs) => {
-			link.sendFrame(encodeFrame(timestampUs, rgba));
-			quality.push(rgba, timestampUs / 1000);
-		});
+		const scale = () => zoom.scaleAt(performance.now());
+		const stopLoop = startFrameLoop(
+			camera,
+			(rgba, timestampUs) => {
+				link.sendFrame(encodeFrame(timestampUs, rgba));
+				quality.push(rgba, timestampUs / 1000, scale());
+			},
+			scale,
+		);
 		return {
 			setMask: link.setMask,
 			stop() {

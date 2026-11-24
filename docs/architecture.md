@@ -123,6 +123,11 @@ reaction("scroll")
   the extension.
 - Camera on an event = `start()` on turn-on and `stopAsync()` on turn-off. A pause in frames without `stop()` breaks
   the session (`kTimestampGap` on every frame), checked 2026-11-19.
+- A person who sits close gets the SDK's advice "place more of the chest in view" and no pulse. The camera page
+  (`apps/wxt/src/lib/camera/zoom-out.ts`) shrinks the picture into the middle of the frame, with black margins, in steps
+  (1, 0.8, 0.65, 0.5, 0.4, every 2.5 s while the advice stands, back up on "face too far"); only for sessions that
+  measure the pulse. Face landmarks of the mask are mapped back to the whole frame; the brightness check ignores
+  the margins. Checked on a recorded clip (2026-11-24): the pulse came at 70% and 55%, and not at 100%.
 - The warm-up, measured: `start()` ~2 s (blocks the server's JS thread) + ~1.2 s from the first frame to an expression
   ≈ 3–4 s until `ask()` is ready. Frames at least 25 a second (otherwise `kSustainedLowFrameRate`).
 - `sendFrame` throws on an error: `#lib/spectra-sdk` catches it, sets `session.failed` and returns `false`; the Worker
@@ -165,12 +170,12 @@ updating by URL.
 - Every turn-on is visible in the overlay with the script's name; answering with the mouse is possible too.
 - Before installing, a script shows its code, its sites and which signals it uses; on/off and delete take one click.
 - The video goes only to `localhost`, is processed in memory and is not saved. Scripts get gestures (`smile`, `nod`) and
-  measurements (`blink`, `pose`, `expression`, `pulse`, `breathing`), without the video and without face points.
+  measurements (`blink`, `pose`, `expression`, `pulse`), without the video and without face points.
 - A script gets a measurement only if it declared it in `@signals`; the install dialog lists them, with the note "not a
-  medical reading" for `pulse` and `breathing`. The server's session set includes only the requested signals: without
-  `@signals pulse` the SDK's `cardio` and `breathing` metrics are not turned on (`docs/signals.md`).
+  medical reading" for `pulse`. The server's session set includes only the requested signals: without
+  `@signals pulse` the SDK's `cardio` metrics are not turned on (`docs/signals.md`).
 - A script works inside the page and can pass what it gets on, like any page script: so install only scripts you trust;
   the extension and the server send and save nothing themselves.
 - SDK telemetry is off by default (`SMARTSPECTRA_TELEMETRY` in the server's `.env`, turned on only explicitly). The SDK
-  still contacts SmartSpectra to check the API key. No medical conclusions: pulse and breathing are estimates from
+  still contacts SmartSpectra to check the API key. No medical conclusions: the pulse is an estimate from
   video, scripts must not make diagnoses; `blink` is not yet checked on real blinks.

@@ -3,15 +3,10 @@ import { browser } from "wxt/browser";
 import { isSignalForwardMessage, type WidgetMessage } from "../messages";
 import { publishWidgetMessage } from "../widget-bus";
 
-/** What the widget shows of a forwarded sample: Beta spins a pinwheel for breathing and shows a heart for the pulse. */
+/** What the widget shows of a forwarded sample: Beta shows a heart and the number for the pulse. */
 function widgetMessageFor(detail: string): WidgetMessage | undefined {
 	try {
 		const sample = JSON.parse(detail) as SignalSample;
-		if (sample.signal === "breathing")
-			return {
-				type: "widget/breathing",
-				rate: (sample as SignalSample<"breathing">).value.rate,
-			};
 		if (sample.signal === "pulse") {
 			const { bpm, stable } = (sample as SignalSample<"pulse">).value;
 			return { type: "widget/pulse", bpm, stable };

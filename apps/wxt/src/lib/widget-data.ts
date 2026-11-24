@@ -4,7 +4,7 @@ import {
 	poseMarkup,
 } from "@/components/BetaVitals";
 import { Alpine, refsOf } from "./alpine";
-import { beatSeconds, breathSeconds, preloadPoses } from "./beta-pose";
+import { beatSeconds, preloadPoses } from "./beta-pose";
 import {
 	browPathFor,
 	browStyleFor,
@@ -17,7 +17,6 @@ import { sendWidgetReply, subscribeToWidgetMessages } from "./widget-bus";
 import { betaClassOf, betaStyleOf, widgetClassOf } from "./widget-layout";
 import {
 	applyMessage,
-	breathingRateOf,
 	cameraBadgeTextOf,
 	cameraBadgeTitleOf,
 	cameraToneOf,
@@ -154,16 +153,6 @@ function createWidgetData() {
 		/** A number the SDK does not trust yet is dimmed. */
 		get pulseNumberStyle() {
 			return `opacity: ${pulseOf(this.state)?.stable ? 1 : 0.55}`;
-		},
-		get pinwheelDuration() {
-			return `${breathSeconds(breathingRateOf(this.state))}s`;
-		},
-		get breathText() {
-			const rate = breathingRateOf(this.state);
-			return rate === undefined ? "" : String(Math.round(rate));
-		},
-		get vitalNumberStyle() {
-			return "opacity: 1";
 		},
 		get emotionLabel() {
 			return emotionOf(this.state);

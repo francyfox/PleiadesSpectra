@@ -10,6 +10,7 @@ import { queryActiveTab } from "../always/active-tab";
 import { ALWAYS_OWNER, createAlwaysCamera } from "../always/always-camera";
 import { holdingPluginNames } from "../always/always-hold";
 import { forwardGestureToTabs } from "../always/gesture-forward";
+import { createHintToaster } from "../always/hint-toast";
 import {
 	loadPausedTabIds,
 	savePausedTabIds,
@@ -38,6 +39,7 @@ import {
 	isWidgetReply,
 	type PopupStatus,
 	type SpectraUpdate,
+	type WidgetMessage,
 } from "../messages";
 import {
 	listInstalledPlugins,
@@ -200,6 +202,14 @@ export function startBackground(): void {
 		};
 	};
 
+	const toastInActiveTab = createHintToaster((text) => {
+		void queryActiveTab().then((tab) => {
+			if (tab?.id === undefined) return;
+			const message: WidgetMessage = { type: "widget/toast", text };
+			browser.tabs.sendMessage(tab.id, message).catch(() => {});
+		});
+	});
+
 	const always = createAlwaysCamera({
 		camera,
 		isHoldWanted: async () =>
@@ -208,6 +218,7 @@ export function startBackground(): void {
 			if (isGesture(gesture))
 				void forwardGestureToTabs({ gesture, confidence });
 		},
+		forwardHint: toastInActiveTab,
 	});
 
 	const presence = createPresence({

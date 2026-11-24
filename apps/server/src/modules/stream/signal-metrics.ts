@@ -12,15 +12,14 @@ const FACE_METRICS: readonly number[] = [
 ];
 
 /**
- * Only the rates: HRV and the traces are not exposed as signals. Never add the unavailable metrics
+ * Only the pulse rate: HRV and the traces are not exposed as signals. Never add the unavailable metrics
  * (BREATHING_AMPLITUDE, APNEA, BASELINE, ...): `start()` fails with ConfigurationFailed.
  */
 const METRICS_BY_SIGNAL: Partial<Record<SignalName, readonly number[]>> = {
 	pulse: [MetricType.PULSE_RATE],
-	breathing: [MetricType.BREATHING_RATE],
 };
 
-/** Face metrics plus the SDK metrics that the requested signals need; `pulse` and `breathing` are off unless asked for. */
+/** Face metrics plus the SDK metrics that the requested signals need; `pulse` is off unless asked for. */
 export function requestedMetricsFor(
 	signals: readonly SignalName[] = [],
 ): number[] {

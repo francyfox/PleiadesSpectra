@@ -4,13 +4,7 @@ import type { ExpressionScores } from "./server-link";
  * Signals are what SmartSpectra measures on the face, passed to scripts as they are, so a script can set its own
  * conditions (how many blinks, which way the head moved, how fast the pulse is) instead of waiting for a ready gesture.
  */
-export const signalNames = [
-	"blink",
-	"pose",
-	"expression",
-	"pulse",
-	"breathing",
-] as const;
+export const signalNames = ["blink", "pose", "expression", "pulse"] as const;
 
 export type SignalName = (typeof signalNames)[number];
 
@@ -37,11 +31,6 @@ export interface SignalValues {
 	 * Not a medical reading.
 	 */
 	pulse: { bpm: number; confidence: number; stable: boolean };
-	/**
-	 * Breathing rate in breaths per minute (`breathing.rate`). `confidence` is 0–100; `stable` means confidence of at
-	 * least 45. Not a medical reading.
-	 */
-	breathing: { rate: number; confidence: number; stable: boolean };
 }
 
 /** One measurement of a signal. */

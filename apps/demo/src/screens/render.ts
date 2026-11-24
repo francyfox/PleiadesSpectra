@@ -19,12 +19,3 @@ function screen(title: string, bodyStyles: string, body = ""): string {
 export function renderSleepScreen(): string {
 	return screen("Sleep screen", "background: #000; cursor: none;");
 }
-
-/** A calm dark blue page with one big word: a screen for the breathing demo. */
-export function renderBreatheScreen(): string {
-	return screen(
-		"Breathe",
-		"background: #0b1b3a; color: #e8f0ff; display: flex; align-items: center; justify-content: center; font-family: system-ui, sans-serif; font-size: 12vmin; font-weight: 300; letter-spacing: 0.1em;",
-		"Breathe",
-	);
-}

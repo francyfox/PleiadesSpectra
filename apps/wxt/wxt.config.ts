@@ -16,7 +16,7 @@ const AGENT_SERVER_ORIGIN = "http://localhost:3001/*";
 const EXTENSION_NAME = "Pleiades Spectra";
 /** The Chrome Web Store rejects a description longer than 132 characters. */
 const EXTENSION_DESCRIPTION =
-	"Your face as a remote control for web pages: scripts react to gestures, pulse and breathing read by the SmartSpectra SDK.";
+	"Your face as a remote control for web pages: scripts react to gestures and the pulse read by the SmartSpectra SDK.";
 
 /**
  * Firefox needs an add-on id to keep its storage and to be signed, and since version 140 a statement of what data the

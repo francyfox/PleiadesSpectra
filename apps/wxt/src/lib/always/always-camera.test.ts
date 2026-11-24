@@ -10,15 +10,18 @@ function setup() {
 		release: async (owner: string) => void calls.push(`release ${owner}`),
 	} as unknown as CameraController;
 	const gestures: string[] = [];
+	const hints: Array<[number, string]> = [];
 	const always = createAlwaysCamera({
 		camera,
 		isHoldWanted: async () => wanted,
 		forwardGesture: (gesture) => gestures.push(gesture),
+		forwardHint: (code, hint) => hints.push([code, hint]),
 	});
 	return {
 		always,
 		calls,
 		gestures,
+		hints,
 		want: (value: boolean) => {
 			wanted = value;
 		},
@@ -57,6 +60,24 @@ describe("the camera of always scripts", () => {
 		h.always.handleCameraEvent(gestureEvent);
 
 		expect(h.gestures).toEqual(["nod"]);
+	});
+
+	test("the advice of the SDK is forwarded with its code while the camera is held", async () => {
+		const chest = {
+			kind: "server",
+			message: {
+				type: "validation",
+				code: 7,
+				hint: "Place more of the chest in view.",
+			},
+		} as const;
+		const h = setup();
+		h.always.handleCameraEvent(chest);
+		h.want(true);
+		await h.always.sync();
+		h.always.handleCameraEvent(chest);
+
+		expect(h.hints).toEqual([[7, "Place more of the chest in view."]]);
 	});
 
 	test("a camera that failed is asked for again on the next sync", async () => {

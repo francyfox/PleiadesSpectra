@@ -39,8 +39,8 @@ export type ClientMessage =
 			height: number;
 			debug?: boolean;
 			/**
-			 * Signals the scripts on the page need. The server measures and sends only these (`pulse` and `breathing`
-			 * add the SDK's cardio and breathing metrics to the session). Gestures and `expression` are always sent.
+			 * Signals the scripts on the page need. The server measures and sends only these (`pulse`
+			 * adds the SDK's cardio metrics to the session). Gestures and `expression` are always sent.
 			 */
 			signals?: SignalName[];
 	  }

@@ -1,6 +1,7 @@
 import type { ServerMessage } from "@repo/protocol";
 import { Elysia } from "elysia";
 import { HIDDEN_FROM_DOCS } from "#modules/docs/docs.utils";
+import { parseClientMessage } from "./client-message";
 import {
 	type Connection,
 	type ConnectionDeps,
@@ -9,8 +10,26 @@ import {
 	handleIncoming,
 	stopConnection,
 } from "./connection";
+import {
+	createStreamLog,
+	type PrintLine,
+	printToConsole,
+	type StreamLog,
+} from "./stream-log";
 
-const connections = new Map<string, Connection>();
+interface ClientState {
+	connection: Connection;
+	log: StreamLog;
+}
+
+const clients = new Map<string, ClientState>();
+
+/** Text from the client is a message; binary is a frame and is not worth parsing here. */
+function logStart(log: StreamLog, raw: unknown): void {
+	if (raw instanceof Uint8Array) return;
+	const message = parseClientMessage(raw);
+	if (message?.type === "start") log.started(message);
+}
 
 /** The worker may still report after the client left; a closed socket must not throw. */
 function sendSafely(
@@ -25,25 +44,35 @@ function sendSafely(
 /** `ws://localhost:3001/ws`; the wire format is described in `@repo/protocol`. */
 export function createStreamRoutes(
 	deps: ConnectionDeps = defaultConnectionDeps,
+	print: PrintLine = printToConsole,
 ) {
 	return new Elysia().ws("/ws", {
 		open(ws) {
-			connections.set(ws.id, createConnection());
+			clients.set(ws.id, {
+				connection: createConnection(),
+				log: createStreamLog(print),
+			});
 		},
 		async message(ws, raw) {
-			const connection = connections.get(ws.id);
-			if (!connection) return;
+			const client = clients.get(ws.id);
+			if (!client) return;
+			logStart(client.log, raw);
 			await handleIncoming(
-				connection,
+				client.connection,
 				raw,
-				(message) => sendSafely(ws, message),
+				(message) => {
+					client.log.sent(message);
+					sendSafely(ws, message);
+				},
 				deps,
 			);
 		},
 		async close(ws) {
-			const connection = connections.get(ws.id);
-			connections.delete(ws.id);
-			if (connection) await stopConnection(connection);
+			const client = clients.get(ws.id);
+			clients.delete(ws.id);
+			if (!client) return;
+			await stopConnection(client.connection);
+			client.log.stopped();
 		},
 		detail: HIDDEN_FROM_DOCS,
 	});

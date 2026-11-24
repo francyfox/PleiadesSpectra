@@ -113,7 +113,7 @@ function topExpression(scores: Record<string, number | undefined>): string {
 
 /**
  * What the raw SDK payload shows in the log of a check: the expressions and nothing else. The session may be shared
- * with scripts that read blinks, talking, pulse and breathing; the check is about emotions only.
+ * with scripts that read blinks, talking and pulse; the check is about emotions only.
  */
 export function expressionsOnly(metrics: unknown): unknown {
 	const expression = (metrics as { face?: { expression?: unknown } } | null)

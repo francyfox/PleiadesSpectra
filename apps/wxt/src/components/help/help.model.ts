@@ -69,7 +69,7 @@ export const headerFields: HelpRow[] = [
 	{
 		name: "@signals",
 		meaning:
-			"Comma-separated measurements the script reads: blink, pose, expression, pulse, breathing. Without it the script gets none.",
+			"Comma-separated measurements the script reads: blink, pose, expression, pulse. Without it the script gets none.",
 	},
 ];
 
@@ -92,7 +92,7 @@ export const chainMembers: HelpRow[] = [
 	{
 		name: "onSignal(name, handler)",
 		meaning:
-			"A measurement from the camera: blink, pose, expression, pulse or breathing. Needs @signals and @camera always.",
+			"A measurement from the camera: blink, pose, expression or pulse. Needs @signals and @camera always.",
 	},
 	{
 		name: "cooldown(ms)",
@@ -230,7 +230,7 @@ export const reactionTriggers: HelpRow[] = [
 	{
 		name: "A measurement changes",
 		meaning:
-			"How many times you blinked, where your head is turned, your expression, your pulse, your breathing rate. The script sets its own condition, for example two blinks in a second and a half. Needs a script with a constant camera.",
+			"How many times you blinked, where your head is turned, your expression, your pulse. The script sets its own condition, for example two blinks in a second and a half. Needs a script with a constant camera.",
 	},
 ];
 

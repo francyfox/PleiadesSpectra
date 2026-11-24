@@ -35,7 +35,6 @@ export interface MetricsLike {
 		blinking?: DetectionLike[] | null;
 	} | null;
 	cardio?: { pulseRate?: MeasurementLike[] | null } | null;
-	breathing?: { rate?: MeasurementLike[] | null } | null;
 }
 
 /** `Long` from protobufjs: a 64-bit integer that does not fit a plain number type. */

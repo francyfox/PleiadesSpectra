@@ -13,7 +13,7 @@ Rules:
    // @match       *://example.com/*        (one line per match pattern, at least one)
    // @camera      on-demand | always        (default on-demand)
    // @gestures    smile, confused           (every gesture the script uses)
-   // @signals     blink, pose, pulse        (every signal the script reads: blink, pose, expression, pulse, breathing)
+   // @signals     blink, pose, pulse        (every signal the script reads: blink, pose, expression, pulse)
    // ==/Reaction==
    ```
 
@@ -33,11 +33,11 @@ Rules:
    declared never reaches the script (the runtime drops it and prints a warning once).
    Throttle noisy ones with `{ minIntervalMs }`. A reaction-wide `cooldown` also skips the samples in between, so
    count with `ctx.signals` and keep your own quiet period when a pattern spans several samples.
-8. Pulse and breathing are not medical readings. Never diagnose, never give health advice, never show them as
+8. The pulse is not a medical reading. Never diagnose, never give health advice, never show it as
    health data. `blink` has not been verified against real blinks yet, so do not build anything important on it.
-9. `ctx.show("pulse" | "breathing", { position?, size? })` makes Beta stand on the page without a question and show
-   the measurement (a heart and bpm, a pinwheel and br/m) until `ctx.hide()` or until the reaction stops. It needs
-   the signal in `@signals` (`pulse` or `breathing`) and `@camera always`; without them nothing is shown. Pulse and
-   breathing here are not medical readings: no health labels, no advice, no "normal" or "high" judgements.
+9. `ctx.show("pulse", { position?, size? })` makes Beta stand on the page without a question and show the
+   measurement (a pinwheel while it is measured, then a heart and bpm) until `ctx.hide()` or until the reaction
+   stops. It needs `pulse` in `@signals` and `@camera always`; without them nothing is shown. The pulse here is not
+   a medical reading: no health labels, no advice, no "normal" or "high" judgements.
 
 Return only the script file.

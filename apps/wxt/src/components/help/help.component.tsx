@@ -95,12 +95,12 @@ function SimplePanel() {
 			<aside class="help__note">
 				<strong>About your data.</strong> The camera picture goes only to the
 				program on this computer and is never saved. Scripts get gestures and,
-				if they ask for them, measurements such as blinks, head position, pulse
-				and breathing rate, never the picture. A script runs on the websites
-				listed in the install window and can pass what it receives on, like any
-				script on a page, so install only scripts you trust. This is not a
-				medical tool: pulse and breathing rate are rough estimates from video
-				and do not diagnose or judge your health.
+				if they ask for them, measurements such as blinks, head position and
+				pulse, never the picture. A script runs on the websites listed in the
+				install window and can pass what it receives on, like any script on a
+				page, so install only scripts you trust. This is not a medical tool: the
+				pulse is a rough estimate from video and does not diagnose or judge your
+				health.
 			</aside>
 		</div>
 	);
@@ -155,7 +155,7 @@ function CameraPanel() {
 				<li>
 					Scripts get gestures such as “smile” or “nod” and, if you installed
 					them with such a request, measurements like blinks, head position,
-					pulse and breathing rate. Never the picture.
+					pulse. Never the picture.
 				</li>
 				<li>
 					This is not a medical tool: it does not measure or judge your health.
@@ -192,9 +192,9 @@ function ReactionsPanel() {
 			<RowTable rows={reactionActions} plain />
 
 			<p>
-				There is no gaze reading, and pulse and breathing are not medical
-				readings: scripts should never judge your health. Blink detection is
-				still experimental.
+				There is no gaze reading, and the pulse is not a medical reading:
+				scripts should never judge your health. Blink detection is still
+				experimental.
 			</p>
 
 			<h3>Ask your AI</h3>

@@ -39,11 +39,6 @@ const DEMO_LINKS = [
 		url: VIDEO_URL,
 		title: "The heart rate script works on this video too",
 	},
-	{
-		label: "Breathing: breathe screen",
-		url: `${DEMO_URL}/breathe`,
-		title: NEEDS_DEMO_SERVER,
-	},
 ];
 
 export function App() {
@@ -108,17 +103,6 @@ export function App() {
 			</Card>
 
 			<Card class="bench__card">
-				<h2>Breathing (the pinwheel, 10 s)</h2>
-				<div class="bench__row">
-					{["8", "12", "20"].map((rate) => (
-						<Button variant="ghost" data-action={`breathing:${rate}`}>
-							{rate} breaths/min
-						</Button>
-					))}
-				</div>
-			</Card>
-
-			<Card class="bench__card">
 				<h2>Pulse (the heart, 10 s)</h2>
 				<div class="bench__row">
 					{["60", "90", "120"].map((bpm) => (
@@ -137,9 +121,6 @@ export function App() {
 				<div class="bench__row">
 					<Button variant="ghost" data-action="show-vital:pulse">
 						show pulse
-					</Button>
-					<Button variant="ghost" data-action="show-vital:breathing">
-						show breathing
 					</Button>
 					<Button variant="ghost" data-action="hide-vital">
 						hide

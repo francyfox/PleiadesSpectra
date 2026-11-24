@@ -164,13 +164,13 @@ export interface ReactionContext {
 	 */
 	toast(text: string): void;
 	/**
-	 * Beta stands on the page without a question and shows a measurement while its samples keep coming: a beating
-	 * heart and the number of bpm for `"pulse"`, a pinwheel and the number of br/m for `"breathing"`. It stays until
+	 * Beta stands on the page without a question and shows a measurement while its samples keep coming: a pinwheel
+	 * and "measuring…" until the first value, then a beating heart and the number of bpm for `"pulse"`. It stays until
 	 * `ctx.hide()` or until the reaction stops (`reaction.stop()`, an aborted `signal`); the handler ending or
 	 * the element hiding does not remove it. Calling it again moves or resizes Beta.
 	 *
 	 * The script must declare the signal in `@signals` (otherwise the measurements never reach it) and use
-	 * `@camera always`, which the user turns on. Pulse and breathing are not medical readings.
+	 * `@camera always`, which the user turns on. The pulse is not a medical reading.
 	 *
 	 * @example
 	 * ```js
@@ -346,7 +346,7 @@ export interface Reaction {
 	 * Fires on every sample of a signal that the extension delivers. Declare the signal in `@signals` and use
 	 * `@camera always`. `cooldown` applies; `minConfidence` does not (confidence is part of the value).
 	 * `options.minIntervalMs` limits the rate of one trigger (`pose` comes up to 15 times a second).
-	 * Pulse and breathing are not medical readings.
+	 * The pulse is not a medical reading.
 	 *
 	 * @example
 	 * ```js

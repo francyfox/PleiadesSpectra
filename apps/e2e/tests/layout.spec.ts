@@ -117,14 +117,15 @@ test("a head gesture shows its pose and the drawn face comes back, shake turns t
 	await expect(pose).toHaveCSS("transform", "none");
 });
 
-test("breathing makes Beta spin the pinwheel and shows the rate, and nothing of it is in the page before", async ({
+test("while a pulse is measured Beta spins the pinwheel without a number, and nothing of it is in the page before", async ({
 	extension,
 }) => {
 	const page = await openAskedWidget(extension);
 	await expect(page.locator(".beta__pinwheel *")).toHaveCount(0);
 	await expect(page.locator("animateTransform")).toHaveCount(0);
+	await page.locator('[data-action="hide"]').dispatchEvent("click");
 
-	await page.locator('[data-action="breathing:12"]').dispatchEvent("click");
+	await page.locator('[data-action="show-vital:pulse"]').dispatchEvent("click");
 
 	await expect(page.locator(".beta__pose image")).toHaveAttribute(
 		"href",
@@ -133,19 +134,18 @@ test("breathing makes Beta spin the pinwheel and shows the rate, and nothing of 
 	await expect(page.locator(".beta__pinwheel animateTransform")).toHaveCount(1);
 	await expect(
 		page.locator(".beta__pinwheel animateTransform"),
-	).toHaveAttribute("dur", "5s");
-	await expect(page.locator(".beta__pinwheel .beta__vital-number")).toHaveText(
-		"12",
+	).toHaveAttribute("dur", "1.6s");
+	await expect(page.locator(".beta__pinwheel .beta__vital-number")).toHaveCount(
+		0,
 	);
-	await expect(page.locator(".beta__pinwheel .beta__vital-unit")).toHaveText(
-		"br/m",
+	await expect(page.locator(".beta-label")).toHaveText("measuring…");
+
+	await page.locator('[data-action="pulse:90"]').dispatchEvent("click");
+
+	await expect(page.locator(".beta__pinwheel *")).toHaveCount(0);
+	await expect(page.locator(".beta__heart .beta__vital-number")).toHaveText(
+		"90",
 	);
-
-	await page.locator('[data-action="breathing:20"]').dispatchEvent("click");
-
-	await expect(
-		page.locator(".beta__pinwheel animateTransform"),
-	).toHaveAttribute("dur", "3s");
 });
 
 test("the pulse shows a beating heart in the fingers and the number beside it, and only then", async ({

@@ -70,7 +70,7 @@ describe("signal sets", () => {
 		const plugins = [
 			plugin("a", ["pulse", "blink"]),
 			plugin("b", ["blink", "pose"]),
-			plugin("off", ["breathing"], ["*://*/*"], false),
+			plugin("off", ["expression"], ["*://*/*"], false),
 		];
 		expect(signalsOfEnabledPlugins(plugins)).toEqual([
 			"blink",
@@ -95,11 +95,14 @@ describe("signal sets", () => {
 
 describe("install window text", () => {
 	test("labels and the physiological note", () => {
-		expect(
-			signalLabels(["blink", "pose", "expression", "pulse", "breathing"]),
-		).toEqual(["Blinks", "Head pose", "Expressions", "Pulse", "Breathing"]);
+		expect(signalLabels(["blink", "pose", "expression", "pulse"])).toEqual([
+			"Blinks",
+			"Head pose",
+			"Expressions",
+			"Pulse",
+		]);
 		expect(physiologicalNote(["pose"])).toBe("");
-		expect(physiologicalNote(["blink", "breathing"])).toBe(PHYSIOLOGICAL_NOTE);
+		expect(physiologicalNote(["blink", "pulse"])).toBe(PHYSIOLOGICAL_NOTE);
 		expect(PHYSIOLOGICAL_NOTE).toContain("not a medical reading");
 	});
 });

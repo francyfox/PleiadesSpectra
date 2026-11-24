@@ -142,8 +142,8 @@ describe("onSignal", () => {
 			.reaction("a")
 			.cooldown(500)
 			.minConfidence(0.99)
-			.onSignal("breathing", ({ sample }) => {
-				seen.push(sample.value.rate);
+			.onSignal("pulse", ({ sample }) => {
+				seen.push(sample.value.bpm);
 			});
 		await tick();
 
@@ -153,7 +153,7 @@ describe("onSignal", () => {
 			[1600, 14],
 		] as const) {
 			harness.setNow(time);
-			harness.send("breathing", { rate, confidence: 10, stable: false });
+			harness.send("pulse", { bpm: rate, confidence: 10, stable: false });
 		}
 		await tick();
 

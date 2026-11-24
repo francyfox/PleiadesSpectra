@@ -25,8 +25,8 @@ export interface AskOption {
  * Script (USER_SCRIPT world) → background, via `runtime.sendMessage`.
  * `reaction/ask` is answered with `AskAnswer`.
  */
-/** What Beta can show without a question: the measurement and its picture (the heart, the pinwheel). */
-export const vitalNames = ["pulse", "breathing"] as const;
+/** What Beta can show without a question: the measurement and its picture (the heart; the pinwheel while it is measured). */
+export const vitalNames = ["pulse"] as const;
 
 export type VitalName = (typeof vitalNames)[number];
 

@@ -27,14 +27,10 @@ export const PICTURE_SIZE = { width: 762, height: 855 } as const;
 
 export const GESTURE_POSE_MS = 900;
 
-/** Beta spins the pinwheel, or shows the heart, for this long after the last breathing or pulse sample. */
-export const BREATHING_POSE_MS = 10_000;
+/** Beta shows the heart for this long after the last pulse sample; then the pinwheel (the loader) comes back. */
 export const PULSE_POSE_MS = 10_000;
 
-const DEFAULT_BREATHS_PER_MINUTE = 12;
 const SECONDS_PER_MINUTE = 60;
-const SHORTEST_BREATH_SECONDS = 2;
-const LONGEST_BREATH_SECONDS = 10;
 
 const SHORTEST_BEAT_SECONDS = 60 / 220;
 const LONGEST_BEAT_SECONDS = 60 / 30;
@@ -54,18 +50,6 @@ export function beatSeconds(beatsPerMinute: number | undefined): number {
 
 export function poseForGesture(gesture: string): PoseName | undefined {
 	return POSE_BY_GESTURE[gesture as Gesture];
-}
-
-/** One breath, from the rate in breaths per minute; a missing or odd rate means a calm 12 a minute. */
-export function breathSeconds(breathsPerMinute: number | undefined): number {
-	const rate =
-		breathsPerMinute && breathsPerMinute > 0
-			? breathsPerMinute
-			: DEFAULT_BREATHS_PER_MINUTE;
-	return Math.min(
-		LONGEST_BREATH_SECONDS,
-		Math.max(SHORTEST_BREATH_SECONDS, SECONDS_PER_MINUTE / rate),
-	);
 }
 
 /** Which way the head turns: `shake` turns it to one side, and to the other side the next time. */

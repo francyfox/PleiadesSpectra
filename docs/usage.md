@@ -72,7 +72,7 @@ in the install window, so users see what the script may do **before** it runs.
 | `@match`    | yes, one line per pattern | The sites the script runs on, as a [match pattern](https://developer.chrome.com/docs/extensions/develop/concepts/match-patterns), e.g. `*://shop.example.com/*`. |
 | `@camera`   | no                        | `on-demand` (default) or `always`. See [Camera modes](#camera-modes).                                                                                            |
 | `@gestures` | no                        | Comma-separated gestures the script uses. The install window lists them.                                                                                         |
-| `@signals`  | no                        | Comma-separated signals the script reads (`blink`, `pose`, `expression`, `pulse`, `breathing`). The install window lists them; without it no signals arrive.      |
+| `@signals`  | no                        | Comma-separated signals the script reads (`blink`, `pose`, `expression`, `pulse`). The install window lists them; without it no signals arrive.      |
 
 `@gestures` and `@signals` are permissions, like `@grant` in Tampermonkey: a gesture or signal you did not declare never
 reaches the script. The runtime drops it, `ctx.signals` returns nothing for it, and the console prints a warning once
@@ -162,7 +162,7 @@ Every handler gets a context `ctx`:
 | ---------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `ctx.ask(question, options)` | Turns the camera on, shows the question and resolves with a gesture, the clicked option or `"timeout"`. |
 | `ctx.toast(text)`            | Shows a short message next to the page.                                                                 |
-| `ctx.show(vital, options?)` | Beta stands on the page without a question and shows `"pulse"` or `"breathing"`; see [Showing a measurement](#showing-a-measurement). |
+| `ctx.show(vital, options?)` | Beta stands on the page without a question and shows `"pulse"`; see [Showing a measurement](#showing-a-measurement). |
 | `ctx.hide()` | Takes away the Beta that this script showed with `ctx.show`. |
 | `ctx.cancel()` | Removes the trigger that fired this handler (for example, stop watching after the first answer). The other triggers of the reaction keep working. |
 | `ctx.onGesture(gesture, handler)` | Listens for a gesture **while this run of the handler is alive**; see [Subscriptions inside a handler](#subscriptions-inside-a-handler). Returns a function that unsubscribes. |
@@ -256,9 +256,8 @@ conditions: how many blinks, which way the head moved, how fast the pulse is. De
 | `pose`       | `{ yaw, pitch }` from the rest pose, in eye distances | up to 15 times a second           |
 | `expression` | scores 0-100 per expression (`HAPPY`, `SAD`, ...) | with every new expression             |
 | `pulse`      | `{ bpm, confidence, stable }`                  | with every new SDK value                 |
-| `breathing`  | `{ rate, confidence, stable }`                 | with every new SDK value                 |
 
-`pulse` and `breathing` are not medical readings: never diagnose or give health advice from them. `blink` has not been
+`pulse` is not a medical reading: never diagnose or give health advice from it. `blink` has not been
 verified against real blinks yet.
 
 ```js
@@ -293,16 +292,17 @@ read elsewhere, so install only scripts you trust.
 
 ### Showing a measurement
 
-`ctx.show("pulse" | "breathing", { position?, size? })` makes Beta stand on the page without a question and show the
-measurement while its samples keep coming: a beating heart and the number of bpm for `pulse`, a pinwheel and the number
-of br/m for `breathing`. `position` and `size` are the same as in `ctx.ask`; when omitted, the widget picks its own.
+`ctx.show("pulse", { position?, size? })` makes Beta stand on the page without a question and show the
+measurement: a spinning pinwheel and "measuring…" until the first value (about 10-13 s after the face is found), then a
+beating heart and the number of bpm while samples keep coming. Advice of the SDK ("Hold still", "Too dark") comes as a
+toast. `position` and `size` are the same as in `ctx.ask`; when omitted, the widget picks its own.
 
 - The script must declare the signal in `@signals` (otherwise the measurements never reach it) and use
   `@camera always`, which the user agrees to by installing the script.
 - The show is not tied to the handler or the element: it lasts until `ctx.hide()`, and goes away on its own when the
   reaction stops (`reaction.stop()` or an aborted `signal`). Calling `ctx.show` again moves or resizes Beta.
 - `ctx.hide()` removes only what this script showed; with nothing shown it does nothing.
-- Pulse and breathing are not medical readings: the widget is a picture of a measurement, not a health indicator.
+- The pulse is not a medical reading: the widget is a picture of a measurement, not a health indicator.
 
 ```js
 // @ts-check
@@ -419,9 +419,7 @@ try both modes.
 bottom-right corner with the beating heart and the bpm number. On YouTube the script works only for the video
 <https://youtu.be/dQw4w9WgXcQ> and leaves other videos alone.
 
-`example/scripts/breathing-pinwheel.js` does the same for breathing: open <http://localhost:4010/breathe>, install
-the script, and the pinwheel with the breaths per minute appears. Pulse and breathing here are
-not medical readings; the scripts do not store or send them.
+The pulse here is not a medical reading; the script does not store or send it.
 
 Editing a script means installing the new file. The old version stays in the list until you remove it, so **delete the
 old one first** (the trash icon). **Show code** (the `</>` icon) opens the installed source.
@@ -470,6 +468,6 @@ the file, validates it and proposes it. Keep the Scripts page open while it work
 - The script runs in an isolated world: it sees the page's DOM but not the page's own JavaScript variables.
 - A script can click, read and change the pages of the sites in `@match`. Match only the sites you need and install
   only scripts you understand.
-- Never infer health or emotion beyond the gestures and signals listed above. Pulse and breathing are not medical
-  readings: no diagnoses, no health advice. The extension is not a medical tool.
+- Never infer health or emotion beyond the gestures and signals listed above. The pulse is not a medical
+  reading: no diagnoses, no health advice. The extension is not a medical tool.
 - Offer a mouse alternative for every gesture, and keep handlers small and defensive.

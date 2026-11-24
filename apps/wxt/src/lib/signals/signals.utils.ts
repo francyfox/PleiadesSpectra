@@ -6,13 +6,12 @@ const SIGNAL_LABELS: Record<SignalName, string> = {
 	pose: "Head pose",
 	expression: "Expressions",
 	pulse: "Pulse",
-	breathing: "Breathing",
 };
 
-const PHYSIOLOGICAL_SIGNALS: readonly SignalName[] = ["pulse", "breathing"];
+const PHYSIOLOGICAL_SIGNALS: readonly SignalName[] = ["pulse"];
 
 export const PHYSIOLOGICAL_NOTE =
-	"Physiological signals: heart rate / breathing rate measured from the camera; not a medical reading.";
+	"Physiological signal: heart rate measured from the camera; not a medical reading.";
 
 function escapeRegExp(text: string): string {
 	return text.replace(/[.+?^${}()|[\]\\]/g, "\\$&");
@@ -90,7 +89,7 @@ export function signalLabels(signals: readonly SignalName[]): string[] {
 	return signals.map(signalLabel);
 }
 
-/** The warning the install window and the list show for `pulse` and `breathing`; empty for the rest. */
+/** The warning the install window and the list show for `pulse`; empty for the rest. */
 export function physiologicalNote(signals: readonly SignalName[]): string {
 	return signals.some((name) => PHYSIOLOGICAL_SIGNALS.includes(name))
 		? PHYSIOLOGICAL_NOTE

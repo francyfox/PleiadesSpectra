@@ -112,12 +112,15 @@ function handleMetrics(metrics: SpectraMetrics): void {
 	for (const sample of emitted.samples) post({ type: "signal", sample });
 }
 
-/** The SDK repeats the same validation status every packet; only changes are worth sending. */
+/** The SDK repeats the same validation status every packet; only changes are worth sending. `kOk` goes out with an empty hint so clients can clear the advice. */
 function handleValidation(code: number, hint: string): void {
 	if (code === lastValidationCode) return;
 	lastValidationCode = code;
-	if (code === VALIDATION_OK_CODE) return;
-	post({ type: "validation", code, hint });
+	post({
+		type: "validation",
+		code,
+		hint: code === VALIDATION_OK_CODE ? "" : hint,
+	});
 }
 
 async function startSession(

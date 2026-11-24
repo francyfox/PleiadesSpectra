@@ -93,13 +93,7 @@ const serverMessages: MessageSpec[] = [
 		key: "signal",
 		title: "Signal",
 		summary: "One measurement of a signal requested in `start.signals`.",
-		examples: [
-			"signalBlink",
-			"signalPose",
-			"signalExpression",
-			"signalPulse",
-			"signalBreathing",
-		],
+		examples: ["signalBlink", "signalPose", "signalExpression", "signalPulse"],
 	},
 	{
 		key: "validation",
